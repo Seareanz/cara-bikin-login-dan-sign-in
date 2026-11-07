@@ -1,0 +1,2476 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Website Dinamis — Tutorial Login &amp; Register (PHP + MySQL)</title>
+<meta name="description" content="Tutorial lengkap membuat website dinamis dengan halaman login dan register menggunakan PHP, MySQL, dan session. Dari nol sampai bisa dipakai.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =====================================================
+   TOKEN DESAIN
+   ===================================================== */
+:root{
+  --bg:#ffffff;
+  --bg-warm:#fafaf9;
+  --bg-tint:#f5f7fb;
+  --text:#0d0d0d;
+  --text-2:#333333;
+  --text-3:#666666;
+  --text-4:#888888;
+  --border:rgba(0,0,0,.05);
+  --border-2:rgba(0,0,0,.08);
+  --accent:#2f6df6;
+  --accent-hover:#1a56d6;
+  --accent-light:#eaf1fe;
+  --accent-deep:#1a4fb8;
+  --accent-soft:#5b8ef8;
+  --code-bg:#0d1117;
+  --code-border:rgba(255,255,255,.08);
+  --radius:12px;
+  --radius-lg:16px;
+  --radius-sm:8px;
+  --shadow-sm:rgba(13,17,23,.05) 0 1px 2px;
+  --shadow-md:rgba(13,17,23,.07) 0 2px 8px;
+  --shadow-lg:rgba(13,17,23,.09) 0 6px 20px;
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+}
+
+/* =====================================================
+   DASAR
+   ===================================================== */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:var(--mono);font-size:.88em;background:rgba(47,109,246,.08);color:var(--accent-deep);padding:.15em .4em;border-radius:var(--radius-sm)}
+
+/* =====================================================
+   PROGRESS BAR
+   ===================================================== */
+.progress-bar{
+  position:fixed;top:0;left:0;height:3px;width:0%;
+  background:var(--accent);
+  z-index:1000;transition:width .1s linear;
+}
+
+/* =====================================================
+   NAV
+   ===================================================== */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:#fff;
+  border-bottom:1px solid var(--border-2);
+}
+.nav-inner{
+  max-width:1200px;margin:0 auto;padding:0 24px;
+  height:66px;display:flex;align-items:center;gap:32px;
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;color:var(--text);letter-spacing:-.2px}
+.brand:hover{text-decoration:none}
+.brand-mark{
+  width:32px;height:32px;border-radius:var(--radius-sm);
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:14px;font-weight:600;
+}
+.nav-links{display:flex;gap:4px;margin-left:auto}
+.nav-links a{
+  color:var(--text-2);font-size:14px;font-weight:500;
+  padding:7px 12px;border-radius:var(--radius-sm);transition:.15s;
+}
+.nav-links a:hover{background:var(--bg-tint);color:var(--text);text-decoration:none}
+.nav-cta{
+  background:var(--text);color:#fff;font-size:14px;font-weight:500;
+  padding:8px 16px;border-radius:var(--radius-sm);transition:background .15s;
+}
+.nav-cta:hover{background:var(--accent);text-decoration:none}
+.nav-toggle{display:none;background:none;border:none;cursor:pointer;color:var(--text);padding:6px}
+
+/* =====================================================
+   HERO
+   ===================================================== */
+.hero{
+  position:relative;
+  padding:80px 24px 96px;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+}
+.hero-inner{
+  max-width:1200px;margin:0 auto;
+  display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent-light);color:var(--accent-deep);
+  font-size:13px;font-weight:500;
+  padding:6px 12px;border-radius:var(--radius-sm);margin-bottom:24px;
+  border:1px solid rgba(47,109,246,.18);
+}
+.hero-eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.hero h1{
+  font-size:clamp(36px,4.6vw,58px);
+  font-weight:600;line-height:1.08;letter-spacing:-1.4px;
+  margin-bottom:22px;color:var(--text);
+}
+.hero h1 .grad{color:var(--accent)}
+.hero-sub{
+  font-size:18px;line-height:1.6;color:var(--text-3);
+  max-width:520px;margin-bottom:32px;
+}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px}
+.btn-primary{
+  background:var(--text);color:#fff;
+  padding:12px 24px;border-radius:var(--radius-sm);
+  font-size:15px;font-weight:500;transition:background .15s;
+}
+.btn-primary:hover{background:var(--accent);text-decoration:none}
+.btn-ghost{
+  background:#fff;color:var(--text);
+  padding:12px 24px;border-radius:var(--radius-sm);
+  font-size:15px;font-weight:500;border:1px solid var(--border-2);
+  transition:border-color .15s,color .15s;
+}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+.hero-stats{display:flex;gap:36px}
+.hstat .num{font-size:26px;font-weight:600;letter-spacing:-.6px;color:var(--text)}
+.hstat .lbl{font-size:13px;color:var(--text-4);margin-top:2px}
+
+/* --- Mockup jendela browser --- */
+.hero-visual{position:relative;margin:20px 0 20px 0}
+.browser{
+  background:#fff;border:1px solid var(--border-2);border-radius:var(--radius);
+  box-shadow:var(--shadow-md);overflow:hidden;
+}
+.browser-bar{
+  display:flex;align-items:center;gap:7px;
+  padding:12px 16px;background:var(--bg-warm);
+  border-bottom:1px solid var(--border);
+}
+.browser-bar .d{width:11px;height:11px;border-radius:50%}
+.browser-bar .d:nth-child(1){background:#ff5f57}
+.browser-bar .d:nth-child(2){background:#febc2e}
+.browser-bar .d:nth-child(3){background:#28c840}
+.browser-bar .url{
+  margin-left:10px;flex:1;
+  font-family:var(--mono);font-size:12px;color:var(--text-4);
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:4px 10px;
+}
+.browser-body{padding:36px 32px;background:#fff}
+.mock-form h3{font-size:20px;font-weight:600;letter-spacing:-.3px;margin-bottom:4px}
+.mock-form .sub{font-size:13px;color:var(--text-4);margin-bottom:20px}
+.mock-field{margin-bottom:14px}
+.mock-field label{display:block;font-size:11px;font-weight:600;color:var(--text-3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.mock-input{
+  height:40px;border:1px solid var(--border-2);border-radius:var(--radius-sm);
+  background:#fff;padding:0 13px;display:flex;align-items:center;
+  font-family:var(--mono);font-size:13px;color:var(--text-2);
+  transition:.2s;
+}
+.mock-input.focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(47,109,246,.14)}
+.mock-input .caret{width:2px;height:16px;background:var(--accent);animation:blink 1s step-end infinite;margin-left:1px}
+.mock-btn{
+  height:42px;border-radius:var(--radius-sm);background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:600;margin-top:20px;
+  transition:.2s;
+}
+.mock-btn:hover{background:var(--accent-hover)}
+.mock-link{text-align:center;font-size:12px;color:var(--text-4);margin-top:16px}
+
+/* --- Kartu melayang --- */
+.float-card{
+  position:absolute;background:#fff;border:1px solid var(--border-2);
+  border-radius:var(--radius-sm);padding:8px 12px;
+  font-family:var(--mono);font-size:12px;color:var(--text-2);
+  box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:8px;
+  z-index:2;
+}
+.fc-1{top:-14px;left:24px}
+.fc-2{bottom:-14px;left:16px}
+.fc-3{bottom:-14px;right:24px}
+.float-card .ic{flex-shrink:0;color:var(--accent-deep)}
+
+/* =====================================================
+   SECTION UMUM
+   ===================================================== */
+.section{padding:64px 24px}
+.section.tint{background:var(--bg-warm);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.wrap{max-width:1200px;margin:0 auto}
+.wrap-narrow{max-width:820px;margin:0 auto}
+.sec-label{
+  display:inline-block;font-size:12px;font-weight:500;
+  text-transform:uppercase;letter-spacing:.8px;
+  color:var(--accent-deep);background:var(--accent-light);
+  padding:4px 10px;border-radius:var(--radius-sm);margin-bottom:16px;
+}
+.sec-title{font-size:clamp(30px,3.4vw,42px);font-weight:600;letter-spacing:-.9px;line-height:1.12;margin-bottom:16px}
+.sec-sub{font-size:17px;color:var(--text-3);max-width:640px;line-height:1.65}
+
+/* --- Reveal on scroll --- */
+.reveal{opacity:0;transition:opacity .4s ease}
+.reveal.in{opacity:1}
+.reveal.d1,.reveal.d2,.reveal.d3,.reveal.d4{transition-delay:0s}
+
+/* =====================================================
+   KONSEP: STATIS vs DINAMIS
+   ===================================================== */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:40px}
+.compare-card{
+  background:#fff;border:1px solid var(--border-2);border-radius:var(--radius);
+  padding:28px;
+  transition:border-color .2s ease;
+}
+.compare-card:hover{border-color:var(--accent)}
+.compare-card.active{border-color:var(--accent)}
+.compare-card .tag{
+  display:inline-block;font-size:11px;font-weight:600;letter-spacing:.6px;
+  text-transform:uppercase;padding:4px 10px;border-radius:var(--radius-sm);margin-bottom:14px;
+}
+.compare-card.statik .tag{background:#fde8e8;color:#c0392b}
+.compare-card.dinamis .tag{background:var(--accent-light);color:var(--accent-deep)}
+.compare-card h3{font-size:20px;font-weight:600;letter-spacing:-.3px;margin-bottom:10px}
+.compare-card p{font-size:14px;color:var(--text-3);line-height:1.65;margin-bottom:16px}
+.compare-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.compare-list li{display:flex;gap:9px;font-size:13.5px;color:var(--text-2);line-height:1.5}
+.compare-list li::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0}
+.compare-card.statik .compare-list li::before{content:'✕';color:#c0392b}
+.compare-demo{
+  margin-top:18px;background:var(--code-bg);border-radius:var(--radius-sm);
+  padding:14px 16px;font-family:var(--mono);font-size:12px;line-height:1.7;
+  color:#c9d1d9;overflow-x:auto;
+}
+.compare-demo .cm{color:#8b949e}
+.compare-demo .st{color:#7ee787}
+.compare-demo .kw{color:#ff7b72}
+
+/* =====================================================
+   ARSITEKTUR
+   ===================================================== */
+.arch{
+  display:grid;grid-template-columns:1fr auto 1fr auto 1fr;
+  gap:0;align-items:center;margin-top:48px;
+}
+.arch-node{
+  background:#fff;border:1px solid var(--border-2);border-radius:var(--radius);
+  padding:26px 22px;text-align:center;
+  transition:border-color .2s ease;
+}
+.arch-node:hover{border-color:var(--accent)}
+.arch-node .ico{color:var(--accent-deep);margin-bottom:10px;line-height:1}
+.arch-node h4{font-size:16px;font-weight:600;margin-bottom:6px}
+.arch-node p{font-size:12.5px;color:var(--text-4);line-height:1.55}
+.arch-arrow{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:0 6px;color:var(--accent);
+}
+.arch-arrow .line{width:44px;height:2px;background:var(--accent);position:relative}
+.arch-arrow .line::after{
+  content:'';position:absolute;right:-1px;top:-3.5px;
+  border-left:7px solid var(--accent);
+  border-top:4.5px solid transparent;border-bottom:4.5px solid transparent;
+}
+.arch-arrow .lbl{font-size:10.5px;font-family:var(--mono);color:var(--text-4);white-space:nowrap}
+.arch-note{
+  margin-top:36px;background:var(--bg-warm);border:1px solid var(--border-2);
+  border-left:3px solid var(--accent);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:18px 22px;
+  display:flex;gap:14px;align-items:flex-start;
+}
+.arch-note .ic{flex-shrink:0;color:var(--accent-deep);line-height:1.6}
+.arch-note p{font-size:14.5px;color:var(--text-2);line-height:1.65}
+.arch-note b{color:var(--accent-deep)}
+
+/* =====================================================
+   TAHAP / LANGKAH
+   ===================================================== */
+.steps{display:flex;flex-direction:column;gap:28px;margin-top:48px}
+.step{
+  background:#fff;border:1px solid var(--border-2);border-radius:var(--radius);
+  overflow:hidden;
+  transition:border-color .2s ease;
+}
+.step:hover{border-color:var(--accent)}
+.step-head{
+  display:flex;align-items:center;gap:18px;
+  padding:26px 30px;border-bottom:1px solid var(--border);
+  background:var(--bg-warm);
+}
+.step-num{
+  width:40px;height:40px;border-radius:var(--radius-sm);flex-shrink:0;
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:16px;font-weight:600;
+}
+.step-head h3{font-size:21px;font-weight:600;letter-spacing:-.4px}
+.step-head .desc{font-size:13.5px;color:var(--text-4);margin-top:2px}
+.step-badge{
+  margin-left:auto;font-size:11px;font-weight:600;letter-spacing:.5px;
+  text-transform:uppercase;padding:4px 10px;border-radius:var(--radius-sm);
+  background:var(--accent-light);color:var(--accent-deep);white-space:nowrap;
+}
+.step-body{padding:30px}
+.step-body > p{font-size:15px;color:var(--text-2);line-height:1.7;margin-bottom:18px}
+.step-body > p:last-child{margin-bottom:0}
+
+/* --- Kotak "apa & kenapa" --- */
+.why{
+  background:var(--bg-warm);border-left:3px solid var(--accent);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:16px 20px;margin-bottom:20px;
+}
+.why .t{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--accent-deep);margin-bottom:8px}
+.why p{font-size:14.5px;color:var(--text-2);line-height:1.7}
+
+/* --- Daftar penjelasan --- */
+.breakdown{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+.breakdown .bd-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--text-4);margin-bottom:2px}
+.bd-item{
+  display:flex;gap:14px;padding:11px 0;
+  border-bottom:1px solid var(--border);
+}
+.bd-item:last-child{border-bottom:none}
+.bd-item .ln{
+  font-family:var(--mono);font-size:11.5px;color:var(--accent-deep);
+  background:var(--accent-light);border-radius:var(--radius-sm);
+  padding:2px 8px;height:fit-content;flex-shrink:0;font-weight:600;
+}
+.bd-item .tx{font-size:14px;color:var(--text-2);line-height:1.6}
+.bd-item .tx b{color:var(--text)}
+
+/* --- Output yang diharapkan --- */
+.output{
+  margin-top:20px;background:var(--code-bg);border-radius:var(--radius);
+  padding:18px 22px;border:1px solid var(--code-border);
+}
+.output .o-head{
+  display:flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;
+  color:#8b949e;margin-bottom:10px;
+}
+.output .o-head .dot{width:7px;height:7px;border-radius:50%;background:#28c840}
+.output p{font-family:var(--mono);font-size:13px;color:#c9d1d9;line-height:1.7}
+.output .ok{color:#7ee787}
+.output .err{color:#ff7b72}
+
+/* --- Tugas --- */
+.task{
+  margin-top:20px;background:#fff8ec;
+  border:1px solid rgba(195,125,13,.35);border-radius:var(--radius-sm);padding:16px 20px;
+  display:flex;gap:12px;
+}
+.task .ic{flex-shrink:0;color:#9a6208;line-height:1.6}
+.task .t{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:#9a6208;margin-bottom:4px}
+.task p{font-size:14px;color:var(--text-2);line-height:1.6}
+
+/* =====================================================
+   CODE BLOCK
+   ===================================================== */
+.codeblock{
+  background:var(--code-bg);border:1px solid var(--code-border);
+  border-radius:var(--radius);overflow:hidden;margin:22px 0;
+}
+.cb-head{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;background:rgba(255,255,255,.04);
+  border-bottom:1px solid var(--code-border);
+}
+.cb-tabs{display:flex;gap:6px}
+.cb-tab{
+  font-family:var(--mono);font-size:12px;color:#8b949e;
+  background:transparent;border:1px solid transparent;
+  padding:6px 13px;border-radius:var(--radius-sm);cursor:pointer;transition:.15s;
+}
+.cb-tab:hover{color:#c9d1d9;background:rgba(255,255,255,.07)}
+.cb-tab.active{color:#fff;background:rgba(47,109,246,.22);border-color:rgba(47,109,246,.5)}
+.cb-lang{
+  font-family:var(--mono);font-size:10.5px;color:#8b949e;
+  text-transform:uppercase;letter-spacing:.8px;margin-left:auto;
+}
+.copy-btn{
+  font-family:var(--mono);font-size:11.5px;color:#c9d1d9;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  padding:6px 13px;border-radius:var(--radius-sm);cursor:pointer;transition:.15s;
+  display:flex;align-items:center;gap:6px;
+}
+.copy-btn .ic{flex-shrink:0}
+.copy-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.copy-btn.copied{background:rgba(40,200,64,.18);border-color:rgba(40,200,64,.4);color:#7ee787}
+.codeblock pre{
+  padding:20px 0;overflow-x:auto;
+  font-family:var(--mono);font-size:13.5px;line-height:1.75;
+  color:#c9d1d9;counter-reset:ln;
+}
+.codeblock pre::-webkit-scrollbar{height:8px}
+.codeblock pre::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:var(--radius-sm)}
+.codeblock code{display:block}
+.codeblock .ln{
+  display:block;padding:0 20px 0 0;position:relative;
+}
+.codeblock .ln::before{
+  counter-increment:ln;content:counter(ln);
+  display:inline-block;width:44px;flex-shrink:0;
+  text-align:right;padding-right:18px;
+  color:#484f58;font-size:12px;user-select:none;
+}
+.codeblock .ln:hover{background:rgba(255,255,255,.035)}
+
+/* --- Warna token sintaks --- */
+.tok-c{color:#8b949e;font-style:italic}
+.tok-s{color:#a5d6a7}
+.tok-k{color:#ff7b72}
+.tok-v{color:#79c0ff}
+.tok-n{color:#d2a8ff}
+.tok-f{color:#d2a8ff}
+.tok-t{color:#7ee787}
+.tok-a{color:#79c0ff}
+.tok-d{color:#ff7b72;font-weight:600}
+.tok-p{color:#c9d1d9}
+.tok-o{color:#ffa657}
+
+/* =====================================================
+   DEMO LIVE
+   ===================================================== */
+.demo-shell{
+  background:#fff;border:1px solid var(--border-2);border-radius:var(--radius);
+  overflow:hidden;margin-top:40px;
+}
+.demo-top{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 20px;background:var(--bg-warm);border-bottom:1px solid var(--border);
+}
+.demo-top .d{width:11px;height:11px;border-radius:50%}
+.demo-top .d:nth-child(1){background:#ff5f57}
+.demo-top .d:nth-child(2){background:#febc2e}
+.demo-top .d:nth-child(3){background:#28c840}
+.demo-url{
+  margin-left:8px;flex:1;font-family:var(--mono);font-size:12px;
+  color:var(--text-4);background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:4px 12px;
+}
+.demo-tabs{display:flex;gap:8px;padding:16px 20px 0}
+.demo-tab{
+  font-size:13.5px;font-weight:500;color:var(--text-4);
+  background:transparent;border:none;padding:9px 18px;
+  border-radius:var(--radius-sm) var(--radius-sm) 0 0;cursor:pointer;
+  transition:color .3s ease, background .3s ease, border-color .3s ease;
+  border-bottom:2px solid transparent;
+}
+.demo-tab:hover{color:var(--text-2)}
+.demo-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--bg-tint)}
+.demo-body{padding:28px;background:var(--bg-tint);min-height:340px;transition:background .3s ease}
+.demo-pane{display:none}
+.demo-pane.active{display:block}
+.demo-form{max-width:360px;margin:0 auto}
+.demo-form h3{font-size:20px;font-weight:600;letter-spacing:-.3px;margin-bottom:4px;text-align:center}
+.demo-form .sub{font-size:13px;color:var(--text-4);text-align:center;margin-bottom:22px}
+.demo-field{margin-bottom:14px}
+.demo-field label{display:block;font-size:12px;font-weight:600;color:var(--text-3);margin-bottom:6px}
+.demo-field input{
+  width:100%;padding:11px 14px;border:1px solid var(--border-2);
+  border-radius:var(--radius-sm);font-size:14px;font-family:var(--font);
+  transition:border-color .3s ease, box-shadow .3s ease, background .3s ease;
+  background:#fff;color:var(--text);
+}
+.demo-field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(47,109,246,.14)}
+.demo-field input.bad{border-color:#e74c3c;box-shadow:0 0 0 3px rgba(231,76,60,.12)}
+.demo-btn{
+  width:100%;padding:12px;border-radius:var(--radius-sm);background:var(--accent);color:#fff;
+  border:none;font-size:15px;font-weight:600;cursor:pointer;
+  transition:background .3s ease;
+  margin-top:4px;font-family:var(--font);
+}
+.demo-btn:hover{background:var(--accent-hover)}
+.demo-btn:disabled{opacity:.6;cursor:not-allowed}
+.demo-alt{text-align:center;font-size:13px;color:var(--text-4);margin-top:16px}
+.demo-alt button{background:none;border:none;color:var(--accent);font-weight:600;cursor:pointer;font-size:13px;font-family:var(--font)}
+.demo-alt button:hover{text-decoration:underline}
+.demo-msg{
+  display:none;padding:11px 15px;border-radius:var(--radius-sm);font-size:13px;
+  margin-bottom:14px;
+}
+.demo-msg.show{display:block}
+.demo-msg.err{background:#fde8e8;color:#c0392b;border:1px solid rgba(192,57,43,.2)}
+.demo-msg.ok{background:#e8f8ee;color:#1e8449;border:1px solid rgba(30,132,73,.2)}
+.demo-msg.info{background:var(--accent-light);color:var(--accent-deep);border:1px solid rgba(47,109,246,.2)}
+
+/* --- Dashboard demo --- */
+.demo-dash{max-width:440px;margin:0 auto;text-align:center}
+.demo-avatar{
+  width:64px;height:64px;border-radius:50%;margin:0 auto 14px;
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:600;
+}
+.demo-dash h3{font-size:22px;font-weight:600;letter-spacing:-.4px;margin-bottom:6px}
+.demo-dash p{font-size:14px;color:var(--text-3);margin-bottom:20px}
+.demo-info{
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;text-align:left;margin-bottom:18px;font-size:13.5px;
+}
+.demo-info .row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}
+.demo-info .row:last-child{border-bottom:none}
+.demo-info .k{color:var(--text-4)}
+.demo-info .v{font-weight:600;color:var(--text);font-family:var(--mono);font-size:12.5px}
+.demo-btn.danger{background:#e74c3c}
+.demo-btn.danger:hover{background:#c0392b}
+.demo-note{
+  margin-top:20px;font-size:12.5px;color:var(--text-4);
+  background:var(--bg-warm);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px 16px;text-align:left;line-height:1.6;
+}
+
+/* =====================================================
+   FAQ
+   ===================================================== */
+.faq-list{display:flex;flex-direction:column;gap:12px;margin-top:40px}
+.faq{
+  background:#fff;border:1px solid var(--border-2);border-radius:var(--radius);
+  overflow:hidden;transition:border-color .3s ease;
+}
+.faq.open{border-color:var(--accent)}
+.faq-q{
+  width:100%;display:flex;align-items:center;gap:14px;
+  padding:19px 22px;background:none;border:none;cursor:pointer;
+  text-align:left;font-family:var(--font);font-size:15.5px;font-weight:500;
+  color:var(--text);transition:color .3s ease;
+}
+.faq-q:hover{color:var(--accent)}
+.faq-q .ic{
+  width:24px;height:24px;border-radius:var(--radius-sm);flex-shrink:0;
+  background:var(--accent-light);color:var(--accent-deep);
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  transition:background .3s ease, color .3s ease;
+}
+.faq.open .faq-q .ic{background:var(--accent);color:#fff}
+.faq-a{
+  max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.16,1,.3,1);
+}
+.faq-a-in{padding:0 22px 20px 64px;font-size:14.5px;color:var(--text-3);line-height:1.7}
+.faq-a-in code{font-size:12.5px}
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+footer{
+  background:var(--text);color:#a0a0a0;padding:56px 24px 32px;
+}
+.foot-inner{max-width:1200px;margin:0 auto}
+.foot-top{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;margin-bottom:40px}
+.foot-brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600;font-size:16px}
+.foot-brand .brand-mark{background:var(--accent)}
+.foot-col h5{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#fff;margin-bottom:14px}
+.foot-col a{display:block;font-size:14px;color:#a0a0a0;margin-bottom:9px;transition:.15s}
+.foot-col a:hover{color:#fff;text-decoration:none}
+.foot-bottom{
+  border-top:1px solid rgba(255,255,255,.1);padding-top:24px;
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-size:13px;color:#777;
+}
+
+/* =====================================================
+   ANIMASI
+   ===================================================== */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* =====================================================
+   RESPONSIF
+   ===================================================== */
+@media (max-width:960px){
+  .hero-inner{grid-template-columns:1fr;gap:48px}
+  .hero{padding:64px 20px 80px}
+  .hero-visual{max-width:460px;margin:0 auto}
+  .fc-1{left:-8px}
+  .fc-2{left:-8px}
+  .fc-3{right:-8px}
+  .arch{grid-template-columns:1fr;gap:14px}
+  .arch-arrow{transform:rotate(90deg);padding:2px 0}
+  .arch-arrow .lbl{transform:rotate(-90deg)}
+  .compare{grid-template-columns:1fr}
+  .section{padding:64px 20px}
+}
+@media (max-width:768px){
+  .nav-links{display:none;position:absolute;top:66px;left:0;right:0;
+    background:#fff;border-bottom:1px solid var(--border);
+    flex-direction:column;padding:12px 20px;gap:2px;
+  }
+  .nav-links.show{display:flex}
+  .nav-toggle{display:block;margin-left:auto}
+  .nav-cta{display:none}
+  .step-head{flex-wrap:wrap;gap:12px}
+  .step-badge{margin-left:0}
+  .step-body{padding:22px}
+  .codeblock pre{font-size:12.5px}
+  .hero-stats{gap:24px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+
+
+  <defs>
+
+
+    <g id="i-lock"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></g>
+
+
+    <g id="i-db"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></g>
+
+
+    <g id="i-check"><path d="M20 6 9 17l-5-5"/></g>
+
+
+    <g id="i-globe"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/></g>
+
+
+    <g id="i-cpu"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></g>
+
+
+    <g id="i-key"><circle cx="8" cy="15" r="4"/><path d="M11 12 20 3M16 7l3 3M13 10l3 3"/></g>
+
+
+    <g id="i-tool"><path d="M14 7a4 4 0 0 0-5.6 5L3 17.4 6.6 21 12 15.6A4 4 0 0 0 17 10l-2.5 2.5-2-2z"/></g>
+
+
+    <g id="i-flask"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3"/></g>
+
+
+    <g id="i-bulb"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.7 1 1.5 1 2.5h6c0-1 .2-1.8 1-2.5A6 6 0 0 0 12 3z"/></g>
+
+
+    <g id="i-pin"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></g>
+
+
+    <g id="i-shield"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6z"/><path d="M9 12l2 2 4-4"/></g>
+
+
+    <g id="i-copy"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></g>
+
+
+    <g id="i-menu"><path d="M3 6h18M3 12h18M3 18h18"/></g>
+
+
+  </defs>
+
+
+</svg>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ==================== NAV ==================== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#atas">
+      <span class="brand-mark">&lt;/&gt;</span>
+      Web Dinamis
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    <div class="nav-links" id="navLinks">
+      <a href="#konsep">Konsep</a>
+      <a href="#arsitektur">Arsitektur</a>
+      <a href="#langkah">Langkah</a>
+      <a href="#demo">Demo</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a class="nav-cta" href="#langkah">Mulai Belajar</a>
+  </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<header class="hero" id="atas">
+  <div class="hero-inner">
+    <div>
+      <span class="hero-eyebrow"><span class="dot"></span> Tutorial Lengkap &middot; PHP + MySQL + Session</span>
+      <h1>Bikin Website <span class="grad">Dinamis</span> dengan Login &amp; Register</h1>
+      <p class="hero-sub">
+        Dari nol sampai jadi. Kamu bakal bikin website yang bisa <b>nyimpen data</b>,
+        <b>nyimpen sesi login</b>, dan <b>bedain user yang masuk sama yang belum</b>.
+        Semua langkahnya ada di sini — tinggal salin, tempel, jalan.
+      </p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="#langkah">Mulai Belajar →</a>
+        <a class="btn-ghost" href="#demo">Coba Demo Dulu</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="num">10</div><div class="lbl">Tahap terstruktur</div></div>
+        <div class="hstat"><div class="num">7</div><div class="lbl">File proyek lengkap</div></div>
+        <div class="hstat"><div class="num">8</div><div class="lbl">Blok kode siap salin</div></div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="browser">
+        <div class="browser-bar">
+          <span class="d"></span><span class="d"></span><span class="d"></span>
+          <span class="url">http://localhost/proyek/login.php</span>
+        </div>
+        <div class="browser-body">
+          <div class="mock-form">
+            <h3>Masuk</h3>
+            <p class="sub">Selamat datang kembali!</p>
+            <div class="mock-field">
+              <label>Username / Email</label>
+              <div class="mock-input focus"><span id="typing"></span><span class="caret"></span></div>
+            </div>
+            <div class="mock-field">
+              <label>Password</label>
+              <div class="mock-input" id="mockPass">••••••••••</div>
+            </div>
+            <div class="mock-btn" id="mockBtn">Masuk</div>
+            <p class="mock-link">Belum punya akun? <a href="#demo">Daftar di sini</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="float-card fc-1"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-lock"/></svg> password_hash()</div>
+      <div class="float-card fc-2"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-db"/></svg> MySQL &middot; tabel users</div>
+      <div class="float-card fc-3"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-check"/></svg> Login berhasil</div>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ==================== KONSEP ==================== -->
+<section class="section" id="konsep">
+  <div class="wrap">
+    <span class="sec-label reveal">Konsep Dasar</span>
+    <h2 class="sec-title reveal d1">Apa itu Website Dinamis?</h2>
+    <p class="sec-sub reveal d2">
+      Website <b>statis</b> itu isinya tetep — yang lihat cuma kode HTML yang ditulis
+      di file. Website <b>dinamis</b> bisa <b>ngerjain sesuatu di belakang layar</b>,
+      nyimpen data, dan nampilin halaman yang beda buat user yang beda.
+    </p>
+
+    <div class="compare">
+      <!-- STATIS -->
+      <div class="compare-card statik reveal d2">
+        <span class="tag">Website Statis</span>
+        <h3>Seperti brosur cetak</h3>
+        <p>
+          Isinya sudah ditulis di file HTML. Setiap orang yang membuka halaman
+          melihat <b>hal yang sama persis</b>. Nggak bisa nyimpen data dari pengunjung.
+        </p>
+        <ul class="compare-list">
+          <li>Nggak bisa simpan data user</li>
+          <li>Nggak ada login / register</li>
+          <li>Isi halaman tidak bisa berubah sendiri</li>
+          <li>Cocok buat: profil, portofolio, landing page</li>
+        </ul>
+        <div class="compare-demo">
+<span class="cm">&lt;!-- Isi file index.html --&gt;</span>
+<span class="st">&lt;h1&gt;</span>Halo, Dunia!<span class="st">&lt;/h1&gt;</span>
+<span class="st">&lt;p&gt;</span>Ini tulisan saya.<span class="st">&lt;/p&gt;</span>
+
+<span class="cm">← Semua orang lihat yang sama</span>
+        </div>
+      </div>
+
+      <!-- DINAMIS -->
+      <div class="compare-card dinamis active reveal d3">
+        <span class="tag">Website Dinamis</span>
+        <h3>Seperti aplikasi di web</h3>
+        <p>
+          Ada "otak" di server (PHP) yang bisa <b>baca database</b>, <b>proses data</b>,
+          dan <b>nyusun halaman</b> sesuai siapa yang buka. Ini yang kita bikin hari ini.
+        </p>
+        <ul class="compare-list">
+          <li>Bisa simpan &amp; baca data user</li>
+          <li>Bisa login, register, logout</li>
+          <li>Halaman bisa beda tiap user</li>
+          <li>Cocok buat: kasir, sistem absensi, dashboard</li>
+        </ul>
+        <div class="compare-demo">
+<span class="kw">&lt;?php</span>
+  <span class="kw">echo</span> <span class="st">"Halo, "</span> . <span class="v">$_SESSION</span>[<span class="st">'username'</span>];
+<span class="cm">// ↑ Nama beda-beda tiap yang login</span>
+<span class="kw">?&gt;</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="arch-note reveal d4">
+      <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-bulb"/></svg>
+      <p>
+        <b>Intinya:</b> website dinamis = <b>HTML</b> (kerangka) + <b>CSS</b> (tampilan)
+        + <b>JavaScript</b> (interaksi di browser) + <b>PHP</b> (otak di server)
+        + <b>MySQL</b> (penyimpanan data). Tutorial ini bikin kelimanya lengkap.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ARSITEKTUR ==================== -->
+<section class="section tint" id="arsitektur">
+  <div class="wrap">
+    <span class="sec-label reveal">Cara Kerja</span>
+    <h2 class="sec-title reveal d1">Arsitektur Aplikasi Kita</h2>
+    <p class="sec-sub reveal d2">
+      Sebelum menulis kode, pahami dulu <b>alur data</b> di balik layar.
+      Setiap kali kamu klik "Masuk", ada perjalanan yang terjadi.
+    </p>
+
+    <div class="arch">
+      <div class="arch-node reveal d1">
+        <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-globe"/></svg>
+        <h4>Browser</h4>
+        <p>User ngetik URL, isi form, klik tombol. Browser kirim <b>permintaan HTTP</b> ke server.</p>
+      </div>
+      <div class="arch-arrow reveal d2">
+        <span class="lbl">HTTP Request</span>
+        <span class="line"></span>
+      </div>
+      <div class="arch-node reveal d2">
+        <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-cpu"/></svg>
+        <h4>Server (PHP)</h4>
+        <p>Apache terima permintaan, jalankan <b>PHP</b>. PHP mikir: login? register? simpan?</p>
+      </div>
+      <div class="arch-arrow reveal d3">
+        <span class="lbl">SQL Query</span>
+        <span class="line"></span>
+      </div>
+      <div class="arch-node reveal d3">
+        <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-db"/></svg>
+        <h4>Database (MySQL)</h4>
+        <p>MySQL simpan &amp; ambil data. <b>Tabel users</b> tempat akun kamu bersemayam.</p>
+      </div>
+    </div>
+
+    <div class="arch-note reveal d4">
+      <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-key"/></svg>
+      <p>
+        <b>Sesi (session)</b> itu kunci login. Begitu PHP bilang "ini user yang benar",
+        server nyimpen <code>$_SESSION['user_id']</code>. Setiap halaman berikutnya
+        cek sesi itu — kalau ada, boleh masuk; kalau nggak, tendang balik ke login.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== LANGKAH ==================== -->
+<section class="section" id="langkah">
+  <div class="wrap">
+    <span class="sec-label reveal">Panduan Lengkap</span>
+    <h2 class="sec-title reveal d1">9 Tahap, dari Nol sampai Jadi</h2>
+    <p class="sec-sub reveal d2">
+      Ikuti berurutan. Jangan loncat — tiap tahap bergantung pada tahap sebelumnya.
+      Semua kode bisa disalin langsung dengan tombol <b>Salin</b>.
+    </p>
+
+    <div class="steps">
+
+      <!-- ===== TAHAP 0 ===== -->
+      <div class="step reveal">
+        <div class="step-head">
+          <div class="step-num">0</div>
+          <div>
+            <h3>Persiapan Alat</h3>
+            <div class="desc">Sebelum menulis kode, siapkan dulu alatnya</div>
+          </div>
+          <span class="step-badge">Persiapan</span>
+        </div>
+        <div class="step-body">
+          <div class="why">
+            <div class="t">Kenapa langkah ini penting?</div>
+            <p>Banyak orang lompat langsung ke kode, lalu bingung kenapa muncul
+            <code>"Apache belum jalan"</code>. Siapkan dulu servernya — 10 menit di depan,
+            hemat 2 jam di belakang.</p>
+          </div>
+          <p>Kita butuh tiga hal:</p>
+          <div class="breakdown">
+            <div class="bd-item"><span class="ln">1</span><span class="tx"><b>XAMPP atau Laragon</b> — paket berisi Apache (server web) + MySQL (database). Pilih <b>salah satu</b>, jangan dua-duanya.</span></div>
+            <div class="bd-item"><span class="ln">2</span><span class="tx"><b>VS Code</b> — editor kode. Gratis, ringan, dan punya fitur bagus buat PHP.</span></div>
+            <div class="bd-item"><span class="ln">3</span><span class="tx"><b>Browser</b> — Chrome atau Firefox versi terbaru.</span></div>
+          </div>
+          <div class="task">
+            <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-tool"/></svg>
+            <div>
+              <div class="t">Kerjakan sekarang</div>
+              <p>Buka XAMPP/Laragon → nyalakan <b>Apache</b> dan <b>MySQL</b> (harus hijau).
+              Lalu buka <code>http://localhost</code> — kalau muncul halaman XAMPP/Laragon,
+              berarti servermu hidup.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAHAP 1 ===== -->
+      <div class="step reveal">
+        <div class="step-head">
+          <div class="step-num">1</div>
+          <div>
+            <h3>Struktur Proyek</h3>
+            <div class="desc">Bikin folder dan file yang rapi</div>
+          </div>
+          <span class="step-badge">Dasar</span>
+        </div>
+        <div class="step-body">
+          <div class="why">
+            <div class="t">Kenapa harus rapi?</div>
+            <p>Proyek yang berantakan bikin kamu bingung sendiri. Struktur yang jelas
+            bikin kamu tahu file mana yang ngapain — dan memudahkan kalau suatu saat
+            mau ditambah fitur.</p>
+          </div>
+          <p>Bikin folder <code>htdocs/proyek</code> (di XAMPP) atau <code>www/proyek</code>
+          (di Laragon), lalu isi dengan file-file ini:</p>
+
+          <div class="codeblock">
+            <div class="cb-head">
+              <div class="cb-tabs"><button class="cb-tab active">Struktur Folder</button></div>
+              <span class="cb-lang">TREE</span>
+              <button class="copy-btn" data-target="cb-tree"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg> Salin</button>
+            </div>
+            <pre><code id="cb-tree" class="lang-text"></code></pre>
+          </div>
+          <script type="text/plain" id="src-tree">proyek/
+├── db.sql          ← skema database (Tahap 2)
+├── koneksi.php     ← jembatan PHP ↔ MySQL (Tahap 3)
+├── register.php    ← halaman daftar (Tahap 4)
+├── login.php       ← halaman masuk (Tahap 5)
+├── dashboard.php   ← halaman setelah login (Tahap 6)
+├── logout.php      ← keluar (Tahap 7)
+└── style.css       ← tampilan semua halaman (Tahap 8)</script>
+
+          <div class="breakdown">
+            <div class="bd-title">Baca Struktur Ini</div>
+            <div class="bd-item"><span class="ln">db.sql</span><span class="tx">Berisi perintah SQL untuk bikin database &amp; tabel <code>users</code>. Dijalankan <b>sekali</b> di phpMyAdmin.</span></div>
+            <div class="bd-item"><span class="ln">koneksi.php</span><span class="tx">Satu-satunya tempat kamu tulis alamat server &amp; password database. Halaman lain cukup <code>include</code> file ini.</span></div>
+            <div class="bd-item"><span class="ln">register.php</span><span class="tx">Halaman <b>publik</b>. Isinya form daftar + logika menyimpan ke database.</span></div>
+            <div class="bd-item"><span class="ln">login.php</span><span class="tx">Halaman <b>publik</b>. Cek username &amp; password, lalu bikin sesi kalau cocok.</span></div>
+            <div class="bd-item"><span class="ln">dashboard.php</span><span class="tx">Halaman <b>terproteksi</b>. Cuma bisa dibuka kalau sesi login ada.</span></div>
+            <div class="bd-item"><span class="ln">logout.php</span><span class="tx">Menghancurkan sesi, lalu balik ke halaman login.</span></div>
+            <div class="bd-item"><span class="ln">style.css</span><span class="tx">Semua tampilan (warna, jarak, kartu, tombol) di sini. Dipakai bersama oleh semua halaman.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAHAP 2 ===== -->
+      <div class="step reveal">
+        <div class="step-head">
+          <div class="step-num">2</div>
+          <div>
+            <h3>Bikin Database</h3>
+            <div class="desc">Tabel <code>users</code> tempat akun bersemayam</div>
+          </div>
+          <span class="step-badge">MySQL</span>
+        </div>
+        <div class="step-body">
+          <div class="why">
+            <div class="t">Kenapa database?</div>
+            <p>Kalau data akun cuma ditulis di HTML, dia hilang tiap halaman di-reload.
+            Database bikin data <b>permanen</b> dan bisa dicari kapan pun.</p>
+          </div>
+          <p>Buka <code>http://localhost/phpmyadmin</code>, klik tab <b>SQL</b>,
+          tempel kode ini, lalu klik <b>Go</b>.</p>
+
+          <div class="codeblock">
+            <div class="cb-head">
+              <div class="cb-tabs"><button class="cb-tab active">db.sql</button></div>
+              <span class="cb-lang">SQL</span>
+              <button class="copy-btn" data-target="cb-dbsql"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg> Salin</button>
+            </div>
+            <pre><code id="cb-dbsql" class="lang-sql"></code></pre>
+          </div>
+          <script type="text/plain" id="src-dbsql">-- =====================================================
+--  db.sql — Database untuk tutorial Website Dinamis
+--  Cara pakai:
+--  1. Buka http://localhost/phpmyadmin
+--  2. Klik tab "SQL" (atau tombol New untuk bikin DB)
+--  3. Salin semua kode ini, tempel, klik "Go" / "Simpan"
+-- =====================================================
+
+-- 1. Buat database-nya
+CREATE DATABASE IF NOT EXISTS db_login
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+-- 2. Pakai database itu
+USE db_login;
+
+-- 3. Buat tabel untuk menyimpan akun pengguna
+CREATE TABLE IF NOT EXISTS users (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  username   VARCHAR(50)  NOT NULL UNIQUE,
+  email      VARCHAR(100) NOT NULL UNIQUE,
+  password   VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- 4. Cek: tabel apa saja yang ada di database ini
+SHOW TABLES;</script>
+
+          <div class="breakdown">
+            <div class="bd-title">Baca Kode Ini</div>
+            <div class="bd-item"><span class="ln">1</span><span class="tx"><code>CREATE DATABASE IF NOT EXISTS</code> — bikin database <code>db_login</code>. Kata <code>IF NOT EXISTS</code> biar nggak error kalau databasenya udah ada.</span></div>
+            <div class="bd-item"><span class="ln">2</span><span class="tx"><code>USE db_login</code> — pilih database ini sebagai target perintah berikutnya.</span></div>
+            <div class="bd-item"><span class="ln">3</span><span class="tx"><code>CREATE TABLE users</code> — bikin tabel dengan 5 kolom.</span></div>
+            <div class="bd-item"><span class="ln">id</span><span class="tx"><code>INT AUTO_INCREMENT PRIMARY KEY</code> — nomor urut otomatis, nggak boleh duplikat. Ini "KTP" tiap baris.</span></div>
+            <div class="bd-item"><span class="ln">username</span><span class="tx"><code>VARCHAR(50) NOT NULL UNIQUE</code> — maksimal 50 huruf, wajib diisi, nggak boleh sama dengan yang lain.</span></div>
+            <div class="bd-item"><span class="ln">email</span><span class="tx">Sama seperti username, tapi maksimal 100 huruf.</span></div>
+            <div class="bd-item"><span class="ln">password</span><span class="tx"><code>VARCHAR(255)</code> — sengaja <b>lebih panjang</b> dari yang kamu kira, karena hasil <code>password_hash()</code> itu sekitar 60-255 karakter.</span></div>
+            <div class="bd-item"><span class="ln">created_at</span><span class="tx"><code>TIMESTAMP DEFAULT CURRENT_TIMESTAMP</code> — otomatis diisi waktu dibuat. Kamu nggak perlu ngetik tanggal.</span></div>
+          </div>
+
+          <div class="output">
+            <div class="o-head"><span class="dot"></span> Kalau berhasil, phpMyAdmin akan bilang:</div>
+            <p><span class="ok">MySQL returned a result set (0 rows affected)</span><br>
+<span class="ok">MySQL returned a result set (0 rows affected)</span><br>
+<span class="ok">MySQL returned a result set (0 rows affected)</span><br>
+<span class="ok">MySQL returned a result set (0 rows affected)</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAHAP 3 ===== -->
+      <div class="step reveal">
+        <div class="step-head">
+          <div class="step-num">3</div>
+          <div>
+            <h3>Bikin Jembatan Database</h3>
+            <div class="desc">File <code>koneksi.php</code> — dipakai semua halaman</div>
+          </div>
+          <span class="step-badge">PHP + MySQL</span>
+        </div>
+        <div class="step-body">
+          <div class="why">
+            <div class="t">Kenapa file terpisah?</div>
+            <p>Kalau alamat server &amp; password database ditulis di <b>tiap halaman</b>,
+            bayangin kalau passwordnya ganti — kamu harus edit 5 file. Dengan file
+            <code>koneksi.php</code>, kamu cuma edit <b>satu tempat</b>.</p>
+          </div>
+          <p>Bikin file <code>koneksi.php</code> di folder proyek, isi dengan:</p>
+
+          <div class="codeblock">
+            <div class="cb-head">
+              <div class="cb-tabs"><button class="cb-tab active">koneksi.php</button></div>
+              <span class="cb-lang">PHP</span>
+              <button class="copy-btn" data-target="cb-koneksi"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg> Salin</button>
+            </div>
+            <pre><code id="cb-koneksi" class="lang-php"></code></pre>
+          </div>
+          <script type="text/plain" id="src-koneksi">&lt;?php
+// =====================================================
+//  koneksi.php — Jembatan antara PHP dan database MySQL
+//  File ini di-include di semua halaman yang butuh
+//  akses ke database.
+// =====================================================
+
+$host = 'localhost';   // server database (XAMPP / Laragon)
+$user = 'root';        // user default XAMPP / Laragon
+$pass = '';            // password default XAMPP / Laragon (kosong)
+$db   = 'db_login';    // nama database dari db.sql
+
+// Buat koneksi
+$koneksi = new mysqli($host, $user, $pass, $db);
+
+// Kalau koneksi gagal, hentikan program dan kasih pesan jelas
+if ($koneksi-&gt;connect_error) {
+    die('Koneksi ke database gagal: ' . $koneksi-&gt;connect_error);
+}
+
+// Pakai UTF-8 supaya karakter Indonesia (é, dll) nggak aneh
+$koneksi-&gt;set_charset('utf8mb4');</script>
+
+          <div class="breakdown">
+            <div class="bd-title">Baca Kode Ini</div>
+            <div class="bd-item"><span class="ln">$host</span><span class="tx">Alamat server database. <code>localhost</code> artinya database ada di komputer yang sama.</span></div>
+            <div class="bd-item"><span class="ln">$user</span><span class="tx">User database. Default XAMPP/Laragon adalah <code>root</code>.</span></div>
+            <div class="bd-item"><span class="ln">$pass</span><span class="tx">Password database. Default XAMPP/Laragon <b>kosong</b> — makanya tanda <code>''</code>.</span></div>
+            <div class="bd-item"><span class="ln">$db</span><span class="tx">Nama database yang kita buat di Tahap 2: <code>db_login</code>.</span></div>
+            <div class="bd-item"><span class="ln">new mysqli</span><span class="tx">Ini cara PHP nyambung ke MySQL. <code>mysqli</code> itu library bawaan PHP — nggak perlu install apa-apa.</span></div>
+            <div class="bd-item"><span class="ln">connect_error</span><span class="tx">Kalau koneksi gagal, kita <b>hentikan</b> program dan kasih pesan. Ini mencegah error aneh yang susah dibaca.</span></div>
+            <div class="bd-item"><span class="ln">set_charset</span><span class="tx">Pakai UTF-8 supaya huruf Indonesia (seperti <code>é</code> atau <code>ç</code>) nggak jadi karakter aneh di database.</span></div>
+          </div>
+
+          <div class="task">
+            <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-flask"/></svg>
+            <div>
+              <div class="t">Coba sekarang</div>
+              <p>Bikin file <code>tes.php</code> isinya <code>&lt;?php include 'koneksi.php'; echo "Koneksi OK!"; ?&gt;</code>,
+              lalu buka <code>http://localhost/proyek/tes.php</code>. Kalau muncul
+              <b>"Koneksi OK!"</b>, jembatanmu sudah tersambung.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAHAP 4 ===== -->
+      <div class="step reveal">
+        <div class="step-head">
+          <div class="step-num">4</div>
+          <div>
+            <h3>Halaman Register</h3>
+            <div class="desc">Form daftar + simpan ke database</div>
+          </div>
+          <span class="step-badge">PHP + Form</span>
+        </div>
+        <div class="step-body">
+          <div class="why">
+            <div class="t">Apa yang terjadi di balik layar?</div>
+            <p>User isi form → browser kirim data ke server → PHP <b>validasi</b> dulu
+            → cek apakah username/email sudah dipakai → <b>hash</b> password →
+            simpan ke database → alihkan ke halaman login.</p>
+          </div>
+          <p>Bikin file <code>register.php</code>, isi dengan kode lengkap ini:</p>
+
+          <div class="codeblock">
+            <div class="cb-head">
+              <div class="cb-tabs"><button class="cb-tab active">register.php</button></div>
+              <span class="cb-lang">PHP + HTML</span>
+              <button class="copy-btn" data-target="cb-register"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg> Salin</button>
+            </div>
+            <pre><code id="cb-register" class="lang-php"></code></pre>
+          </div>
+          <script type="text/plain" id="src-register">&lt;?php
+// =====================================================
+//  register.php — Halaman pendaftaran akun baru
+//  Berisi: logika PHP (atas) + tampilan HTML (bawah)
+// =====================================================
+
+session_start();
+include 'koneksi.php';
+
+$error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // 1. Ambil data dari form, lalu bersihkan
+    $username = trim($_POST['username'] ?? '');
+    $email    = trim($_POST['email']    ?? '');
+    $password = $_POST['password']      ?? '';
+
+    // 2. Validasi
+    if ($username === '' || $email === '' || $password === '') {
+        $error = 'Semua kolom wajib diisi.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Format email tidak valid.';
+    } elseif (strlen($password) &lt; 6) {
+        $error = 'Password minimal 6 karakter.';
+    } else {
+
+        // 3. Cek apakah username/email sudah dipakai
+        $stmt = $koneksi-&gt;prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+        $stmt-&gt;bind_param("ss", $username, $email);
+        $stmt-&gt;execute();
+        $stmt-&gt;store_result();
+
+        if ($stmt-&gt;num_rows &gt; 0) {
+            $error = 'Username atau email sudah terdaftar.';
+
+        } else {
+            // 4. Hash password (JANGAN simpan plaintext!)
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+
+            // 5. Simpan ke database
+            $stmt = $koneksi-&gt;prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+            $stmt-&gt;bind_param("sss", $username, $email, $hash);
+
+            if ($stmt-&gt;execute()) {
+                $_SESSION['flash'] = 'Registrasi berhasil! Silakan login.';
+                header('Location: login.php');
+                exit;
+            }
+
+            $error = 'Terjadi kesalahan. Coba lagi.';
+        }
+    }
+}
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;title&gt;Register — Web Dinamis&lt;/title&gt;
+    &lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="card"&gt;
+        &lt;h1&gt;Buat Akun Baru&lt;/h1&gt;
+        &lt;p&gt;Daftar dulu sebelum masuk ke dashboard.&lt;/p&gt;
+
+        &lt;?php if ($error !== ''): ?&gt;
+            &lt;div class="alert error"&gt;&lt;?= htmlspecialchars($error) ?&gt;&lt;/div&gt;
+        &lt;?php endif; ?&gt;
+
+        &lt;form method="POST" action=""&gt;
+            &lt;label for="username"&gt;Username&lt;/label&gt;
+            &lt;input type="text" id="username" name="username"
+                   minlength="3" maxlength="50" required
+                   placeholder="contoh: zean"&gt;
+
+            &lt;label for="email"&gt;Email&lt;/label&gt;
+            &lt;input type="email" id="email" name="email" required
+                   placeholder="nama@email.com"&gt;
+
+            &lt;label for="password"&gt;Password&lt;/label&gt;
+            &lt;input type="password" id="password" name="password"
+                   minlength="6" required
+                   placeholder="minimal 6 karakter"&gt;
+
+            &lt;button type="submit"&gt;Daftar&lt;/button&gt;
+        &lt;/form&gt;
+
+        &lt;p class="link"&gt;
+            Sudah punya akun? &lt;a href="login.php"&gt;Login di sini&lt;/a&gt;
+        &lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</script>
+
+          <div class="breakdown">
+            <div class="bd-title">Baca Kode Ini — Bagian PHP</div>
+            <div class="bd-item"><span class="ln">1</span><span class="tx"><code>session_start()</code> — wajib dipanggil di awal kalau mau pakai <code>$_SESSION</code>.</span></div>
+            <div class="bd-item"><span class="ln">2</span><span class="tx"><code>include 'koneksi.php'</code> — "masukkan" jembatan database ke halaman ini.</span></div>
+            <div class="bd-item"><span class="ln">3</span><span class="tx"><code>$_SERVER['REQUEST_METHOD'] === 'POST'</code> — cek apakah form baru disubmit. Kalau belum, halaman cuma nampilin form kosong.</span></div>
+            <div class="bd-item"><span class="ln">4</span><span class="tx"><code>trim()</code> — buang spasi di depan/belakang. <code>?? ''</code> — kalau kolomnya kosong, pakai string kosong (biar nggak error).</span></div>
+            <div class="bd-item"><span class="ln">5</span><span class="tx"><b>Validasi</b> — cek kolom kosong, format email, dan panjang password <b>sebelum</b> menyentuh database.</span></div>
+            <div class="bd-item"><span class="ln">6</span><span class="tx"><code>prepare()</code> + <code>bind_param()</code> — <b>wajib</b> pakai ini. Ini yang bikin kamu kebal dari SQL Injection. Simbol <code>?</code> itu "tempat pati" yang isinya diganti variabel.</span></div>
+            <div class="bd-item"><span class="ln">7</span><span class="tx"><code>password_hash()</code> — ubah password jadi <b>teks acak yang nggak bisa dibalik</b>. Jangan pernah simpan password asli!</span></div>
+            <div class="bd-item"><span class="ln">8</span><span class="tx"><code>header('Location: ...')</code> — alihkan browser ke halaman lain. <code>exit</code> wajib dipanggil setelahnya, kalau nggak kode di bawahnya tetap jalan.</span></div>
+            <div class="bd-item"><span class="ln">9</span><span class="tx"><code>htmlspecialchars()</code> — ubah <code>&lt;</code> jadi <code>&amp;lt;</code> supaya pesan error nggak bisa disisipi kode berbahaya (XSS).</span></div>
+          </div>
+
+          <div class="output">
+            <div class="o-head"><span class="dot"></span> Alur yang benar</div>
+            <p><span class="ok">1. Buka http://localhost/proyek/register.php</span><br>
+<span class="ok">2. Isi username, email, password → klik Daftar</span><br>
+<span class="ok">3. Muncul pesan "Registrasi berhasil! Silakan login."</span><br>
+<span class="ok">4. Kamu diarahkan ke login.php</span></p>
+          </div>
+
+          <div class="task">
+            <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-flask"/></svg>
+            <div>
+              <div class="t">Coba sekarang</div>
+              <p>Daftar pakai username yang sama <b>dua kali</b>. Percobaan kedua harusnya
+              muncul pesan <b>"Username atau email sudah terdaftar."</b> — itu bukti
+              validasi di langkah 3 bekerja.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAHAP 5 ===== -->
+      <div class="step reveal">
+        <div class="step-head">
+          <div class="step-num">5</div>
+          <div>
+            <h3>Halaman Login</h3>
+            <div class="desc">Cek akun + bikin sesi</div>
+          </div>
+          <span class="step-badge">PHP + Session</span>
+        </div>
+        <div class="step-body">
+          <div class="why">
+            <div class="t">Bedanya login sama register?</div>
+            <p>Register <b>menambah</b> data. Login <b>mencari</b> data yang sudah ada,
+            lalu <b>membuktikan</b> bahwa kamu benar pemiliknya lewat password.</p>
+          </div>
+          <p>Bikin file <code>login.php</code>:</p>
+
+          <div class="codeblock">
+            <div class="cb-head">
+              <div class="cb-tabs"><button class="cb-tab active">login.php</button></div>
+              <span class="cb-lang">PHP + HTML</span>
+              <button class="copy-btn" data-target="cb-login"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg> Salin</button>
+            </div>
+            <pre><code id="cb-login" class="lang-php"></code></pre>
+          </div>
+          <script type="text/plain" id="src-login">&lt;?php
+// =====================================================
+//  login.php — Halaman masuk ke akun
+// =====================================================
+
+session_start();
+include 'koneksi.php';
+
+$error = '';
+$flash = $_SESSION['flash'] ?? '';
+unset($_SESSION['flash']);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $user = trim($_POST['username'] ?? '');
+    $pass = $_POST['password']      ?? '';
+
+    if ($user === '' || $pass === '') {
+        $error = 'Semua kolom wajib diisi.';
+    } else {
+
+        // Cari user berdasarkan username ATAU email
+        $stmt = $koneksi-&gt;prepare("SELECT id, username, password FROM users WHERE username = ? OR email = ?");
+        $stmt-&gt;bind_param("ss", $user, $user);
+        $stmt-&gt;execute();
+        $result = $stmt-&gt;get_result();
+
+        if ($row = $result-&gt;fetch_assoc()) {
+            // Verifikasi password yang di-hash
+            if (password_verify($pass, $row['password'])) {
+
+                // Buat sesi login
+                $_SESSION['user_id']  = $row['id'];
+                $_SESSION['username'] = $row['username'];
+
+                header('Location: dashboard.php');
+                exit;
+            }
+        }
+
+        // Kalau sampai sini, berarti gagal
+        $error = 'Username atau password salah.';
+    }
+}
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;title&gt;Login — Web Dinamis&lt;/title&gt;
+    &lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="card"&gt;
+        &lt;h1&gt;Masuk&lt;/h1&gt;
+        &lt;p&gt;Selamat datang kembali!&lt;/p&gt;
+
+        &lt;?php if ($flash !== ''): ?&gt;
+            &lt;div class="alert success"&gt;&lt;?= htmlspecialchars($flash) ?&gt;&lt;/div&gt;
+        &lt;?php endif; ?&gt;
+
+        &lt;?php if ($error !== ''): ?&gt;
+            &lt;div class="alert error"&gt;&lt;?= htmlspecialchars($error) ?&gt;&lt;/div&gt;
+        &lt;?php endif; ?&gt;
+
+        &lt;form method="POST" action=""&gt;
+            &lt;label for="username"&gt;Username / Email&lt;/label&gt;
+            &lt;input type="text" id="username" name="username" required
+                   placeholder="username atau email"&gt;
+
+            &lt;label for="password"&gt;Password&lt;/label&gt;
+            &lt;input type="password" id="password" name="password" required
+                   placeholder="password kamu"&gt;
+
+            &lt;button type="submit"&gt;Masuk&lt;/button&gt;
+        &lt;/form&gt;
+
+        &lt;p class="link"&gt;
+            Belum punya akun? &lt;a href="register.php"&gt;Daftar di sini&lt;/a&gt;
+        &lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</script>
+
+          <div class="breakdown">
+            <div class="bd-title">Baca Kode Ini</div>
+            <div class="bd-item"><span class="ln">flash</span><span class="tx"><code>$_SESSION['flash']</code> itu pesan sekali pakai dari halaman register. Kita <code>unset()</code> setelah dibaca, biar nggak muncul terus.</span></div>
+            <div class="bd-item"><span class="ln">prepare</span><span class="tx">Cari user berdasarkan username <b>atau</b> email — makanya <code>WHERE username = ? OR email = ?</code> dan <code>bind_param("ss", $user, $user)</code> dipakai dua kali.</span></div>
+            <div class="bd-item"><span class="ln">fetch_assoc</span><span class="tx">Ambil satu baris hasil sebagai array. Kalau nggak ada baris, <code>$row</code> akan <code>null</code>.</span></div>
+            <div class="bd-item"><span class="ln">password_verify</span><span class="tx">Ini kebalikan dari <code>password_hash()</code>. Dia cek apakah password yang diketik sama dengan hash di database. <b>Nggak bisa</b> membalik hash — makanya aman.</span></div>
+            <div class="bd-item"><span class="ln">$_SESSION</span><span class="tx">Setelah cocok, kita simpan <code>user_id</code> dan <code>username</code> ke sesi. Inilah yang bikin halaman lain tahu "ini dia yang login".</span></div>
+            <div class="bd-item"><span class="ln">error</span><span class="tx">Sengaja <b>nggak</b> disebutin apakah username atau password yang salah — biar orang jahat nggak bisa menebak username yang terdaftar.</span></div>
+          </div>
+
+          <div class="output">
+            <div class="o-head"><span class="dot"></span> Yang harusnya terjadi</div>
+            <p><span class="ok">Username &amp; password benar → masuk dashboard.php</span><br>
+<span class="err">Salah satu salah → "Username atau password salah."</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAHAP 6 ===== -->
+      <div class="step reveal">
+        <div class="step-head">
+          <div class="step-num">6</div>
+          <div>
+            <h3>Dashboard (Halaman Terproteksi)</h3>
+            <div class="desc">Cuma bisa dibuka kalau sudah login</div>
+          </div>
+          <span class="step-badge">Session</span>
+        </div>
+        <div class="step-body">
+          <div class="why">
+            <div class="t">Kenapa perlu proteksi?</div>
+            <p>Kalau dashboard bisa dibuka siapa saja, login jadi nggak guna.
+            Proteksi itu <b>baris pertama</b> di tiap halaman terproteksi: cek sesi,
+            kalau nggak ada — tendang balik ke login.</p>
+          </div>
+          <p>Bikin file <code>dashboard.php</code>:</p>
+
+          <div class="codeblock">
+            <div class="cb-head">
+              <div class="cb-tabs"><button class="cb-tab active">dashboard.php</button></div>
+              <span class="cb-lang">PHP + HTML</span>
+              <button class="copy-btn" data-target="cb-dash"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg> Salin</button>
+            </div>
+            <pre><code id="cb-dash" class="lang-php"></code></pre>
+          </div>
+          <script type="text/plain" id="src-dash">&lt;?php
+// =====================================================
+//  dashboard.php — Halaman utama setelah login
+//  HANYA bisa diakses oleh user yang sudah login.
+// =====================================================
+
+session_start();
+
+// Proteksi: kalau belum login, tendang ke halaman login
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;title&gt;Dashboard — Web Dinamis&lt;/title&gt;
+    &lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="card"&gt;
+        &lt;h1&gt;Halo, &lt;?= htmlspecialchars($_SESSION['username']) ?&gt;!&lt;/h1&gt;
+        &lt;p&gt;Kamu berhasil masuk. Ini halaman dashboard yang hanya bisa diakses oleh pengguna yang sudah login.&lt;/p&gt;
+
+        &lt;div class="info"&gt;
+            &lt;p&gt;&lt;strong&gt;ID:&lt;/strong&gt; &lt;?= (int) $_SESSION['user_id'] ?&gt;&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Username:&lt;/strong&gt; &lt;?= htmlspecialchars($_SESSION['username']) ?&gt;&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Login pada:&lt;/strong&gt; &lt;?= date('d-m-Y H:i:s') ?&gt;&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;a class="btn btn-danger" href="logout.php"&gt;Keluar (Logout)&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</script>
+
+          <div class="breakdown">
+            <div class="bd-title">Baca Kode Ini</div>
+            <div class="bd-item"><span class="ln">1</span><span class="tx"><code>isset($_SESSION['user_id'])</code> — cek apakah sesi login ada. Kalau nggak, <code>header()</code> lempar user ke <code>login.php</code>.</span></div>
+            <div class="bd-item"><span class="ln">2</span><span class="tx"><code>htmlspecialchars($_SESSION['username'])</code> — wajib! Kalau username mengandung <code>&lt;script&gt;</code>, ini mengubahnya jadi teks biasa.</span></div>
+            <div class="bd-item"><span class="ln">3</span><span class="tx"><code>(int) $_SESSION['user_id']</code> — paksa jadi angka. Ini mencegah data aneh masuk ke halaman.</span></div>
+            <div class="bd-item"><span class="ln">4</span><span class="tx"><code>date('d-m-Y H:i:s')</code> — fungsi bawaan PHP buat tampilin tanggal &amp; jam sekarang.</span></div>
+          </div>
+
+          <div class="task">
+            <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-flask"/></svg>
+            <div>
+              <div class="t">Coba sekarang</div>
+              <p>Buka <code>http://localhost/proyek/dashboard.php</code> <b>tanpa login dulu</b>.
+              Kamu harusnya langsung dilempar ke <code>login.php</code>. Itu bukti proteksinya jalan.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAHAP 7 ===== -->
+      <div class="step reveal">
+        <div class="step-head">
+          <div class="step-num">7</div>
+          <div>
+            <h3>Logout</h3>
+            <div class="desc">Hancurkan sesi dengan benar</div>
+          </div>
+          <span class="step-badge">Session</span>
+        </div>
+        <div class="step-body">
+          <div class="why">
+            <div class="t">Kenapa nggak cukup <code>session_destroy()</code> saja?</div>
+            <p>Ada <b>dua</b> hal yang perlu dibersihkan: data sesi di server, dan
+            <b>cookie sesi</b> di browser. Kalau cookie nggak dihapus, browser masih
+            menyimpan "kunci" lama — dan itu bahaya kalau komputernya dipakai orang lain.</p>
+          </div>
+          <p>Bikin file <code>logout.php</code>:</p>
+
+          <div class="codeblock">
+            <div class="cb-head">
+              <div class="cb-tabs"><button class="cb-tab active">logout.php</button></div>
+              <span class="cb-lang">PHP</span>
+              <button class="copy-btn" data-target="cb-logout"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg> Salin</button>
+            </div>
+            <pre><code id="cb-logout" class="lang-php"></code></pre>
+          </div>
+          <script type="text/plain" id="src-logout">&lt;?php
+// =====================================================
+//  logout.php — Hancurkan sesi dan kembali ke login
+// =====================================================
+
+session_start();
+
+// Hapus semua data sesi
+$_SESSION = [];
+
+// Hapus cookie sesi (kalau ada)
+if (ini_get('session.use_cookies')) {
+    $params = session_get_cookie_params();
+    setcookie(
+        session_name(), '', time() - 42000,
+        $params['path'], $params['domain'],
+        $params['secure'], $params['httponly']
+    );
+}
+
+// Hancurkan sesi
+session_destroy();
+
+header('Location: login.php');
+exit;</script>
+
+          <div class="breakdown">
+            <div class="bd-title">Baca Kode Ini</div>
+            <div class="bd-item"><span class="ln">1</span><span class="tx"><code>$_SESSION = []</code> — kosongkan semua data sesi. Ini langkah pertama.</span></div>
+            <div class="bd-item"><span class="ln">2</span><span class="tx"><code>session_get_cookie_params()</code> — ambil setting cookie sesi (path, domain, dll) supaya kita bisa hapus cookie yang <b>persis sama</b>.</span></div>
+            <div class="bd-item"><span class="ln">3</span><span class="tx"><code>setcookie(..., time() - 42000)</code> — set waktu kedaluwarsa cookie jadi 42000 detik yang lalu. Browser langsung menghapusnya.</span></div>
+            <div class="bd-item"><span class="ln">4</span><span class="tx"><code>session_destroy()</code> — hapus file sesi di server.</span></div>
+            <div class="bd-item"><span class="ln">5</span><span class="tx"><code>header('Location: login.php')</code> — kembali ke halaman login.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAHAP 8 ===== -->
+      <div class="step reveal">
+        <div class="step-head">
+          <div class="step-num">8</div>
+          <div>
+            <h3>Styling (style.css)</h3>
+            <div class="desc">Tampilan yang sama di semua halaman</div>
+          </div>
+          <span class="step-badge">CSS</span>
+        </div>
+        <div class="step-body">
+          <div class="why">
+            <div class="t">Kenapa CSS di file terpisah?</div>
+            <p>Kalau tampilan ditulis di tiap halaman, mengubah warna berarti edit
+            5 file. Dengan <code>style.css</code>, kamu edit <b>satu file</b> dan
+            semua halaman ikut berubah.</p>
+          </div>
+          <p>Bikin file <code>style.css</code>:</p>
+
+          <div class="codeblock">
+            <div class="cb-head">
+              <div class="cb-tabs"><button class="cb-tab active">style.css</button></div>
+              <span class="cb-lang">CSS</span>
+              <button class="copy-btn" data-target="cb-css"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg> Salin</button>
+            </div>
+            <pre><code id="cb-css" class="lang-css"></code></pre>
+          </div>
+          <script type="text/plain" id="src-css">/* =====================================================
+   style.css — Tampilan untuk semua halaman
+   Web Dinamis Tutorial
+   ===================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #eef1f8;
+    color: #1a1a2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: var(--radius);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.card h1 {
+    font-size: 24px;
+    margin-bottom: 6px;
+}
+
+.card p {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #dcdfe6;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: #2f6df6;
+    box-shadow: 0 0 0 3px rgba(47, 109, 246, 0.15);
+}
+
+button {
+    width: 100%;
+    padding: 11px;
+    background: #2f6df6;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #1a56d6;
+}
+
+.alert {
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.alert.error {
+    background: #fde8e8;
+    color: #c0392b;
+}
+
+.alert.success {
+    background: #e8f8ee;
+    color: #1e8449;
+}
+
+.link {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 13px;
+    color: #888;
+}
+
+.link a {
+    color: #2f6df6;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.link a:hover {
+    text-decoration: underline;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-danger {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
+.info {
+    background: #f7f9fc;
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 18px;
+    font-size: 13px;
+}
+
+.info p {
+    margin-bottom: 4px;
+    color: #444;
+}</script>
+
+          <div class="breakdown">
+            <div class="bd-title">Baca Kode Ini</div>
+            <div class="bd-item"><span class="ln">body</span><span class="tx"><code>display:flex</code> + <code>align-items:center</code> + <code>justify-content:center</code> + <code>min-height:100vh</code> — trik buat <b>tengahkan kartu di tengah layar</b> secara vertikal &amp; horizontal.</span></div>
+            <div class="bd-item"><span class="ln">.card</span><span class="tx">Wadah putih dengan <code>border-radius:var(--radius)</code> (sudut membulat) dan <code>box-shadow</code> (bayangan halus) — bikin kesan "mengambang".</span></div>
+            <div class="bd-item"><span class="ln">input:focus</span><span class="tx">Saat kolom diklik, border jadi biru + muncul ring tipis. Ini <b>umpan balik visual</b> yang penting buat user.</span></div>
+            <div class="bd-item"><span class="ln">transition</span><span class="tx">Semua perubahan warna/ukuran jadi <b>halus</b> (0.2 detik), bukan mendadak. Ini yang bikin website terasa mahal.</span></div>
+            <div class="bd-item"><span class="ln">.alert</span><span class="tx">Dua varian: <code>.error</code> (merah) dan <code>.success</code> (hijau). Warna memberi tahu user apa yang terjadi.</span></div>
+          </div>
+
+          <div class="task">
+            <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-bulb"/></svg>
+            <div>
+              <div class="t">Coba sekarang</div>
+              <p>Ganti warna <code>#2f6df6</code> jadi warna kesukaanmu (misal <code>#e91e63</code>).
+              Segera buka login.php — tombolnya ikut berubah. Itu bukti CSS terpisah bekerja.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAHAP 9 ===== -->
+      <div class="step reveal">
+        <div class="step-head">
+          <div class="step-num">9</div>
+          <div>
+            <h3>Keamanan — Wajib Baca!</h3>
+            <div class="desc">Empat hal yang memisahkan kode aman dan kode berbahaya</div>
+          </div>
+          <span class="step-badge">Penting</span>
+        </div>
+        <div class="step-body">
+          <div class="why">
+            <div class="t">Ini bukan opsional.</div>
+            <p>Kebanyakan website siswa bocor bukan karena diserang hacker canggih —
+            tapi karena <b> empat hal ini dilewatkan</b>. Baca baik-baik.</p>
+          </div>
+
+          <div class="breakdown">
+            <div class="bd-title">1. Password — pakai <code>password_hash()</code>, bukan <code>md5()</code></div>
+            <div class="bd-item"><span class="ln">Salah</span><span class="tx"><code>md5($password)</code> — <b>nggak aman</b>. md5 bisa dibalik pakai tabel pelangi di internet. Kalau database bocor, semua password ketemu aslinya dalam hitungan menit.</span></div>
+            <div class="bd-item"><span class="ln">Benar</span><span class="tx"><code>password_hash($password, PASSWORD_DEFAULT)</code> — pakai algoritma <b>bcrypt</b> yang otomatis di-update PHP tiap versi. Dia juga menambahkan "garam" (salt) acak, jadi dua orang dengan password sama punya hash beda.</span></div>
+            <div class="bd-item"><span class="ln">Catatan</span><span class="tx">Untuk login, pakai <code>password_verify()</code>. Jangan pernah mencoba "membalik" hash — memang nggak bisa.</span></div>
+          </div>
+
+          <div class="breakdown">
+            <div class="bd-title">2. SQL — pakai <code>prepare()</code>, jangan <code>"SELECT * FROM users WHERE username = '$user'"</code></div>
+            <div class="bd-item"><span class="ln">Salah</span><span class="tx">Kalau kamu <b>nyambungin</b> input user langsung ke query, seseorang bisa mengetik <code>' OR '1'='1</code> di kolom username — dan <b>masuk tanpa password</b>. Ini namanya <b>SQL Injection</b>.</span></div>
+            <div class="bd-item"><span class="ln">Benar</span><span class="tx"><code>prepare()</code> + <code>bind_param()</code> memperlakukan input user sebagai <b>data biasa</b>, bukan bagian dari perintah SQL. Mustahil disusupi.</span></div>
+            <div class="bd-item"><span class="ln">Aturan</span><span class="tx">Aturan praktis: <b>kalau ada input user di query, wajib prepare()</b>. Nggak ada kecuali.</span></div>
+          </div>
+
+          <div class="breakdown">
+            <div class="bd-title">3. Output — pakai <code>htmlspecialchars()</code> saat menampilkan data user</div>
+            <div class="bd-item"><span class="ln">Salah</span><span class="tx">Kalau username <code>&lt;script&gt;alert('hacked')&lt;/script&gt;</code> ditampilkan apa adanya, script itu <b>jalan di browser orang lain</b>. Namanya <b>XSS (Cross-Site Scripting)</b>.</span></div>
+            <div class="bd-item"><span class="ln">Benar</span><span class="tx"><code>htmlspecialchars()</code> mengubah <code>&lt;</code> jadi <code>&amp;lt;</code> — script-nya jadi <b>teks biasa</b> yang cuma ditampilkan, bukan dijalankan.</span></div>
+            <div class="bd-item"><span class="ln">Aturan</span><span class="tx">Aturan praktis: <b>setiap</b> data dari user/database yang ditampilkan di HTML, bungkus dengan <code>htmlspecialchars()</code>.</span></div>
+          </div>
+
+          <div class="breakdown">
+            <div class="bd-title">4. Sesi — jangan simpan password di session</div>
+            <div class="bd-item"><span class="ln">Salah</span><span class="tx"><code>$_SESSION['password'] = $pass;</code> — kalau file sesi bocor, password ikut bocor.</span></div>
+            <div class="bd-item"><span class="ln">Benar</span><span class="tx">Simpan <b>cuma</b> <code>user_id</code> dan <code>username</code>. Password cuma diverifikasi sekali saat login, lalu dibuang.</span></div>
+            <div class="bd-item"><span class="ln">Aturan</span><span class="tx">Sesi simpan di server, cookie cuma simpan <b>ID</b> sesi. Itu desain yang benar.</span></div>
+          </div>
+
+          <div class="task">
+            <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-shield"/></svg>
+            <div>
+              <div class="t">Checklist sebelum disebut "selesai"</div>
+              <p>Password pakai <code>password_hash()</code><br>
+              Semua query pakai <code>prepare()</code><br>
+              Semua output pakai <code>htmlspecialchars()</code><br>
+              Sesi cuma simpan <code>user_id</code> &amp; <code>username</code><br>
+              Halaman terproteksi punya cek sesi di baris pertama</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== DEMO ==================== -->
+<section class="section tint" id="demo">
+  <div class="wrap">
+    <span class="sec-label reveal">Coba Sendiri</span>
+    <h2 class="sec-title reveal d1">Demo Interaktif — Login &amp; Register</h2>
+    <p class="sec-sub reveal d2">
+      Ini versi <b>demo</b> yang jalan langsung di browser (pakai <code>localStorage</code>,
+      bukan database). Coba daftar akun, lalu masuk. Rasakan sendiri alurnya.
+    </p>
+
+    <div class="demo-shell reveal d3">
+      <div class="demo-top">
+        <span class="d"></span><span class="d"></span><span class="d"></span>
+        <span class="demo-url" id="demoUrl">http://localhost/proyek/login.php</span>
+      </div>
+      <div class="demo-tabs">
+        <button class="demo-tab active" data-pane="login">Masuk</button>
+        <button class="demo-tab" data-pane="register">Daftar</button>
+        <button class="demo-tab" data-pane="dashboard">Dashboard</button>
+      </div>
+      <div class="demo-body">
+
+        <!-- LOGIN -->
+        <div class="demo-pane active" id="pane-login">
+          <div class="demo-form">
+            <h3>Masuk</h3>
+            <p class="sub">Selamat datang kembali!</p>
+            <div class="demo-msg" id="loginMsg"></div>
+            <form id="loginForm" autocomplete="off">
+              <div class="demo-field">
+                <label>Username / Email</label>
+                <input type="text" id="loginUser" placeholder="username atau email">
+              </div>
+              <div class="demo-field">
+                <label>Password</label>
+                <input type="password" id="loginPass" placeholder="password kamu">
+              </div>
+              <button type="submit" class="demo-btn">Masuk</button>
+            </form>
+            <p class="demo-alt">Belum punya akun? <button type="button" data-goto="register">Daftar di sini</button></p>
+          </div>
+        </div>
+
+        <!-- REGISTER -->
+        <div class="demo-pane" id="pane-register">
+          <div class="demo-form">
+            <h3>Buat Akun Baru</h3>
+            <p class="sub">Daftar dulu sebelum masuk.</p>
+            <div class="demo-msg" id="regMsg"></div>
+            <form id="regForm" autocomplete="off">
+              <div class="demo-field">
+                <label>Username</label>
+                <input type="text" id="regUser" placeholder="contoh: zean">
+              </div>
+              <div class="demo-field">
+                <label>Email</label>
+                <input type="email" id="regEmail" placeholder="nama@email.com">
+              </div>
+              <div class="demo-field">
+                <label>Password</label>
+                <input type="password" id="regPass" placeholder="minimal 6 karakter">
+              </div>
+              <button type="submit" class="demo-btn">Daftar</button>
+            </form>
+            <p class="demo-alt">Sudah punya akun? <button type="button" data-goto="login">Login di sini</button></p>
+          </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div class="demo-pane" id="pane-dashboard">
+          <div class="demo-dash">
+            <div class="demo-avatar" id="dashAvatar">?</div>
+            <h3 id="dashName">Halo, Tamu!</h3>
+            <p id="dashSub">Kamu belum login. Coba daftar atau masuk dulu lewat tab di atas.</p>
+            <div class="demo-info">
+              <div class="row"><span class="k">Status</span><span class="v" id="dashStatus">Belum login</span></div>
+              <div class="row"><span class="k">ID</span><span class="v" id="dashId">—</span></div>
+              <div class="row"><span class="k">Login pada</span><span class="v" id="dashTime">—</span></div>
+            </div>
+            <button class="demo-btn danger" id="dashLogout">Keluar (Logout)</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="demo-note reveal d4">
+      <b>Catatan penting:</b> Demo ini pakai <code>localStorage</code> di browser kamu —
+      datanya <b>nggak pergi ke server mana pun</b>, dan hilang kalau kamu hapus data browser.
+      Di proyek asli (PHP + MySQL), datanya disimpan di database dan bisa dipakai semua user.
+      Konsepnya sama, tempat simpannya beda. Jangan pakai cara demo ini di website asli.
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FAQ ==================== -->
+<section class="section" id="faq">
+  <div class="wrap-narrow">
+    <span class="sec-label reveal">Troubleshooting</span>
+    <h2 class="sec-title reveal d1">Masih Error? Ini Jawabannya</h2>
+    <p class="sec-sub reveal d2">
+      90% masalah yang kamu hadapi pasti ada di sini. Cari gejalanya, temukan solusinya.
+    </p>
+
+    <div class="faq-list">
+
+      <div class="faq reveal">
+        <button class="faq-q"><span class="ic">+</span>Apache / MySQL nggak bisa menyala (port dipakai)</button>
+        <div class="faq-a"><div class="faq-a-in">
+          <b>Penyebab:</b> port 80 (Apache) atau 3306 (MySQL) sudah dipakai program lain —
+          biasanya Skype, VMware, atau XAMPP sebelumnya yang nggak mati total.<br><br>
+          <b>Solusi:</b>
+          <br>1. Buka XAMPP → <code>netstat</code> atau cek <code>httpd.conf</code>, ganti port 80 jadi 8080.
+          <br>2. Atau matikan program yang pakai port itu.
+          <br>3. Kalau pakai Laragon, klik kanan icon Laragon → <i>Restart All</i>.
+          <br>4. Cek di terminal: <code>netstat -ano | grep :80</code> untuk lihat siapa yang pakai.
+        </div></div>
+      </div>
+
+      <div class="faq reveal">
+        <button class="faq-q"><span class="ic">+</span>Halaman muncul tulisan putih polos, nggak ada styling</button>
+        <div class="faq-a"><div class="faq-a-in">
+          <b>Penyebab:</b> file <code>style.css</code> nggak kebaca — biasanya karena
+          nama file salah, lokasi salah, atau <code>href</code>-nya nggak sesuai.<br><br>
+          <b>Solusi:</b>
+          <br>1. Pastikan file namanya <code>style.css</code> (huruf kecil semua).
+          <br>2. Pastikan dia satu folder dengan <code>login.php</code>.
+          <br>3. Cek di browser: tekan <code>F12</code> → tab <b>Network</b> → reload.
+          Kalau <code>style.css</code> berwarna merah / 404, berarti path-nya salah.
+        </div></div>
+      </div>
+
+      <div class="faq reveal">
+        <button class="faq-q"><span class="ic">+</span>Error: "Undefined variable: koneksi"</button>
+        <div class="faq-a"><div class="faq-a-in">
+          <b>Penyebab:</b> file <code>koneksi.php</code> nggak berhasil di-include,
+          atau namanya salah ketik.<br><br>
+          <b>Solusi:</b>
+          <br>1. Cek baris <code>include 'koneksi.php';</code> — pastikan nama file dan folder sama persis.
+          <br>2. Coba ganti jadi <code>include __DIR__ . '/koneksi.php';</code> — ini cara paling aman.
+          <br>3. Pastikan <code>koneksi.php</code> ada di folder yang sama dengan halaman yang memanggilnya.
+        </div></div>
+      </div>
+
+      <div class="faq reveal">
+        <button class="faq-q"><span class="ic">+</span>Error: "Call to undefined function password_hash()"</button>
+        <div class="faq-a"><div class="faq-a-in">
+          <b>Penyebab:</b> PHP versi kamu terlalu lama. <code>password_hash()</code>
+          baru ada di PHP 5.5+.<br><br>
+          <b>Solusi:</b>
+          <br>1. Cek versi PHP: buat file <code>info.php</code> isinya
+          <code>&lt;?php phpinfo(); ?&gt;</code>, lalu buka di browser.
+          <br>2. Kalau di bawah 5.5, update XAMPP/Laragon ke versi terbaru.
+          <br>3. XAMPP modern (PHP 8.x) pasti punya fungsi ini.
+        </div></div>
+      </div>
+
+      <div class="faq reveal">
+        <button class="faq-q"><span class="ic">+</span>Setelah login, dashboard masih lempar balik ke login</button>
+        <div class="faq-a"><div class="faq-a-in">
+          <b>Penyebab:</b> <code>session_start()</code> nggak dipanggil di dashboard,
+          atau sesi nggak sempat kesimpan.<br><br>
+          <b>Solusi:</b>
+          <br>1. Pastikan <code>session_start()</code> ada di <b>baris pertama</b> dashboard.php,
+          sebelum output apa pun (termasuk spasi/enter).
+          <br>2. Jangan ada echo/print/HTML sebelum <code>session_start()</code>.
+          <br>3. Cek di browser: <code>F12</code> → <b>Application</b> → <b>Cookies</b> →
+          pastikan ada cookie <code>PHPSESSID</code>.
+        </div></div>
+      </div>
+
+      <div class="faq reveal">
+        <button class="faq-q"><span class="ic">+</span>Error: "Cannot modify header information - headers already sent"</button>
+        <div class="faq-a"><div class="faq-a-in">
+          <b>Penyebab:</b> Ada output (teks, spasi, atau HTML) <b>sebelum</b>
+          <code>header()</code> atau <code>session_start()</code>. PHP nggak bisa kirim
+          header kalau halaman sudah mulai "dicetak".<br><br>
+          <b>Solusi:</b>
+          <br>1. Cari spasi atau enter di atas <code>&lt;?php</code> — hapus semua.
+          <br>2. Jangan ada <code>echo</code> sebelum <code>header()</code>.
+          <br>3. Kalau pakai <code>include</code>, pastikan file yang di-include nggak
+          punya spasi di awal/akhir.
+        </div></div>
+      </div>
+
+      <div class="faq reveal">
+        <button class="faq-q"><span class="ic">+</span>File PHP-nya malah tampil sebagai teks di browser</button>
+        <div class="faq-a"><div class="faq-a-in">
+          <b>Penyebab:</b> Kamu membuka file lewat <code>file://</code>, bukan
+          <code>http://localhost</code>. PHP cuma jalan lewat server.<br><br>
+          <b>Solusi:</b>
+          <br>1. Pastikan Apache sudah menyala.
+          <br>2. Buka lewat <code>http://localhost/proyek/login.php</code>.
+          <br>3. Jangan dobel-klik file PHP di folder — itu buka lewat <code>file://</code>.
+        </div></div>
+      </div>
+
+      <div class="faq reveal">
+        <button class="faq-q"><span class="ic">+</span>Koneksi OK tapi tabel nggak ada / "Unknown database"</button>
+        <div class="faq-a"><div class="faq-a-in">
+          <b>Penyebab:</b> <code>db.sql</code> belum dijalankan, atau namanya beda
+          dengan yang ditulis di <code>koneksi.php</code>.<br><br>
+          <b>Solusi:</b>
+          <br>1. Buka <code>http://localhost/phpmyadmin</code>.
+          <br>2. Pastikan ada database <code>db_login</code> di daftar sebelah kiri.
+          <br>3. Kalau belum ada, klik tab <b>SQL</b>, tempel <code>db.sql</code>, klik <b>Go</b>.
+          <br>4. Cek lagi di <code>koneksi.php</code>: <code>$db = 'db_login';</code> harus sama.
+        </div></div>
+      </div>
+
+      <div class="faq reveal">
+        <button class="faq-q"><span class="ic">+</span>Bagaimana cara baca pesan error PHP yang membingungkan?</button>
+        <div class="faq-a"><div class="faq-a-in">
+          <b>Tips:</b>
+          <br>1. Baca <b>baris pertamanya</b> — di situ letak masalahnya.
+          <br>2. Catat <b>nomor baris</b> yang disebut (contoh: <code>on line 23</code>).
+          <br>3. Cari kata kuncinya di Google, tambahkan "PHP" di belakang.
+          <br>4. Aktifkan error lengkap sementara: tambahkan di atas file:
+          <code>error_reporting(E_ALL); ini_set('display_errors', 1);</code>
+          <br>5. Ingat: pesan error itu <b>menunjukmu ke jalan</b, bukan menyerangmu.
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* =====================================================
+   WEB DINAMIS — Logika Tutorial
+   1. Syntax highlighter
+   2. Copy to clipboard
+   3. Scroll reveal & progress bar
+   4. FAQ accordion
+   5. Demo login/register (localStorage)
+   6. Animasi hero
+   ===================================================== */
+(function () {
+  'use strict';
+
+  var COPY_ICON = '<svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-copy"/></svg>';
+
+  /* ---------- 1. SYNTAX HIGHLIGHTER ---------- */
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  var PHP_RULES = [
+    { re: /\/\/[^\n]*|#[^\n]*/y, cls: 'tok-c' },
+    { re: /\/\*[\s\S]*?\*\//y, cls: 'tok-c' },
+    { re: /'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/y, cls: 'tok-s' },
+    { re: /\$[a-zA-Z_]\w*/y, cls: 'tok-v' },
+    { re: /\b(?:function|if|else|elseif|foreach|as|while|return|include|include_once|require|require_once|new|class|public|private|protected|static|echo|print|true|false|null|exit|die|isset|empty|session_start|session_unset|session_destroy|try|catch|throw|use|namespace|switch|case|break|continue|default|do|for|match|fn|global|const|endif|endwhile|endfor|endforeach)\b/y, cls: 'tok-k' },
+    { re: /\b\d+(?:\.\d+)?\b/y, cls: 'tok-n' },
+    { re: /\b[a-zA-Z_]\w*(?=\s*\()/y, cls: 'tok-f' },
+    { re: /\s+|[^\s\w$]+/y, cls: null }
+  ];
+
+  var HTML_RULES = [
+    { re: /<!--[\s\S]*?-->/y, cls: 'tok-c' },
+    { re: /<!DOCTYPE[^>]*>/yi, cls: 'tok-t' },
+    { re: /<\?php|<\?=|\?>/y, cls: 'tok-d' },
+    { re: /<\/?[a-zA-Z][\w-]*/y, cls: 'tok-t' },
+    { re: /\/?>/y, cls: 'tok-t' },
+    { re: /[a-zA-Z-]+(?=\s*=)/y, cls: 'tok-a' },
+    { re: /"[^"]*"|'[^']*'/y, cls: 'tok-s' },
+    { re: /\s+|[^\s<>]+/y, cls: null }
+  ];
+
+  var CSS_RULES = [
+    { re: /\/\*[\s\S]*?\*\//y, cls: 'tok-c' },
+    { re: /#[0-9a-fA-F]{3,8}\b/y, cls: 'tok-n' },
+    { re: /[.#][a-zA-Z][\w-]*/y, cls: 'tok-t' },
+    { re: /"[^"]*"|'[^']*'/y, cls: 'tok-s' },
+    { re: /\b\d+(?:\.\d+)?(?:px|em|rem|%|s|ms|vh|vw|fr|deg|pt)?\b/y, cls: 'tok-n' },
+    { re: /[a-zA-Z-]+(?=\s*:)/y, cls: 'tok-a' },
+    { re: /\s+|[^\s{};:,]+|[{};:,]/y, cls: null }
+  ];
+
+  var SQL_RULES = [
+    { re: /--[^\n]*/y, cls: 'tok-c' },
+    { re: /\/\*[\s\S]*?\*\//y, cls: 'tok-c' },
+    { re: /'[^']*'|"[^"]*"/y, cls: 'tok-s' },
+    { re: /\b(?:CREATE|DATABASE|TABLE|IF|NOT|EXISTS|USE|CHARACTER|SET|COLLATE|INT|AUTO_INCREMENT|PRIMARY|KEY|VARCHAR|TIMESTAMP|DEFAULT|CURRENT_TIMESTAMP|ENGINE|InnoDB|UNIQUE|NULL|SHOW|TABLES)\b/yi, cls: 'tok-k' },
+    { re: /\b\d+\b/y, cls: 'tok-n' },
+    { re: /\s+|[^\s(),;]+|[(),;]/y, cls: null }
+  ];
+
+  var TEXT_RULES = [{ re: /\s+|[^\s]+/y, cls: null }];
+  var RULES = { php: PHP_RULES, html: HTML_RULES, css: CSS_RULES, sql: SQL_RULES, text: TEXT_RULES };
+
+  /* Tokenisasi menjadi baris-baris HTML (dengan nomor baris via CSS counter) */
+  function highlightToLines(code, rules) {
+    var segs = [], i = 0;
+    while (i < code.length) {
+      var matched = false;
+      for (var r = 0; r < rules.length; r++) {
+        rules[r].re.lastIndex = i;
+        var m = rules[r].re.exec(code);
+        if (m && m.index === i) {
+          segs.push({ t: m[0], c: rules[r].cls });
+          i += m[0].length; matched = true; break;
+        }
+      }
+      if (!matched) { segs.push({ t: code[i], c: null }); i++; }
+    }
+    var lines = [], cur = '', openCls = null;
+    for (var s = 0; s < segs.length; s++) {
+      var seg = segs[s];
+      var chunks = seg.t.split('\n');
+      var open = seg.c ? '<span class="' + seg.c + '">' : '';
+      var shut = seg.c ? '</span>' : '';
+      if (chunks.length === 1) {
+        cur += open + esc(chunks[0]) + shut;
+        continue;
+      }
+      for (var c = 0; c < chunks.length; c++) {
+        if (c > 0) {
+          cur += shut;
+          lines.push(cur); cur = open;
+        }
+        cur += esc(chunks[c]);
+      }
+    }
+    lines.push(cur);
+    return lines;
+  }
+
+  function renderLines(el, lines) {
+    el.textContent = '';
+    for (var i = 0; i < lines.length; i++) {
+      if (i > 0) el.appendChild(document.createTextNode('\n'));
+      var sp = document.createElement('span');
+      sp.className = 'ln';
+      sp.innerHTML = lines[i] || ' ';
+      el.appendChild(sp);
+    }
+  }
+
+  function renderCode(el, code, lang) {
+    if (lang === 'php') {
+      /* File PHP campur HTML: bagi dulu di delimiter <?php / ?> */
+      var parts = code.split(/(<\?php|<\?=|\?>)/);
+      var inPhp = false, lines = [], cur = '';
+      for (var i = 0; i < parts.length; i++) {
+        var p = parts[i];
+        if (p === '<?php' || p === '<?=') {
+          cur += '<span class="tok-d">' + esc(p) + '</span>'; inPhp = true;
+        } else if (p === '?>') {
+          cur += '<span class="tok-d">' + esc(p) + '</span>'; inPhp = false;
+        } else {
+          var sub = highlightToLines(p, inPhp ? PHP_RULES : HTML_RULES);
+          for (var j = 0; j < sub.length; j++) {
+            if (j === 0) cur += sub[j];
+            else { lines.push(cur); cur = sub[j]; }
+          }
+        }
+      }
+      lines.push(cur);
+      renderLines(el, lines);
+    } else {
+      renderLines(el, highlightToLines(code, RULES[lang] || []));
+    }
+  }
+
+  document.querySelectorAll('code[class^="lang-"]').forEach(function (el) {
+    var lang = el.className.replace(/^lang-/, '');
+    var key = el.id.replace(/^cb-/, '');
+    var src = document.getElementById('src-' + key);
+    if (src) renderCode(el, src.textContent, lang);
+  });
+
+  /* ---------- 2. COPY TO CLIPBOARD ---------- */
+
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var key = btn.dataset.target.replace(/^cb-/, '');
+      var src = document.getElementById('src-' + key);
+      var text = src ? src.textContent : '';
+
+      function done() {
+        btn.classList.add('copied');
+        btn.innerHTML = COPY_ICON + ' Tersalin';
+        setTimeout(function () {
+          btn.classList.remove('copied');
+          btn.innerHTML = COPY_ICON + ' Salin';
+        }, 1800);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () { fallback(); });
+      } else { fallback(); }
+
+      function fallback() {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        done();
+      }
+    });
+  });
+
+  /* ---------- 3. SCROLL REVEAL & PROGRESS BAR ---------- */
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+
+  var pb = document.getElementById('progressBar');
+  function updateProgress() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    pb.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  /* ---------- 4. NAV TOGGLE (mobile) ---------- */
+
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', function () { navLinks.classList.toggle('show'); });
+    navLinks.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { navLinks.classList.remove('show'); });
+    });
+  }
+
+  /* ---------- 5. FAQ ACCORDION ---------- */
+
+  document.querySelectorAll('.faq-q').forEach(function (q) {
+    q.addEventListener('click', function () {
+      var item = q.parentElement;
+      var ans = item.querySelector('.faq-a');
+      var wasOpen = item.classList.contains('open');
+
+      document.querySelectorAll('.faq.open').forEach(function (f) {
+        f.classList.remove('open');
+        f.querySelector('.faq-a').style.maxHeight = '0px';
+      });
+
+      if (!wasOpen) {
+        item.classList.add('open');
+        ans.style.maxHeight = ans.scrollHeight + 'px';
+      }
+    });
+  });
+
+  /* ---------- 6. DEMO LOGIN / REGISTER ---------- */
+
+  var USERS_KEY = 'wd_demo_users';
+  var SESSION_KEY = 'wd_demo_session';
+
+  function getUsers() {
+    try { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; }
+    catch (e) { return []; }
+  }
+  function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY)); }
+    catch (e) { return null; }
+  }
+  function setSession(s) { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+  function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+  /* Hash sederhana — HANYA untuk demo, bukan untuk produksi */
+  function simpleHash(str) {
+    var h = 0;
+    for (var i = 0; i < str.length; i++) {
+      h = ((h << 5) - h) + str.charCodeAt(i);
+      h |= 0;
+    }
+    return 'h' + Math.abs(h).toString(36) + '_' + str.length;
+  }
+
+  function showMsg(el, text, type) {
+    el.textContent = text;
+    el.className = 'demo-msg show ' + type;
+  }
+
+  function updateDemoUrl(pane) {
+    var el = document.getElementById('demoUrl');
+    var map = { login: 'login.php', register: 'register.php', dashboard: 'dashboard.php' };
+    el.textContent = 'http://localhost/proyek/' + (map[pane] || 'login.php');
+  }
+
+  function switchPane(name) {
+    document.querySelectorAll('.demo-tab').forEach(function (t) { t.classList.remove('active'); });
+    document.querySelectorAll('.demo-pane').forEach(function (p) { p.classList.remove('active'); });
+    var tab = document.querySelector('.demo-tab[data-pane="' + name + '"]');
+    if (tab) tab.classList.add('active');
+    var pane = document.getElementById('pane-' + name);
+    if (pane) pane.classList.add('active');
+    updateDemoUrl(name);
+    if (name === 'dashboard') refreshDash();
+  }
+
+  document.querySelectorAll('.demo-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () { switchPane(tab.dataset.pane); });
+  });
+
+  document.querySelectorAll('[data-goto]').forEach(function (b) {
+    b.addEventListener('click', function () { switchPane(b.dataset.goto); });
+  });
+
+  /* Register */
+  var regForm = document.getElementById('regForm');
+  if (regForm) {
+    regForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var u = document.getElementById('regUser').value.trim();
+      var em = document.getElementById('regEmail').value.trim();
+      var p = document.getElementById('regPass').value;
+      var msg = document.getElementById('regMsg');
+
+      if (!u || !em || !p) { showMsg(msg, 'Semua kolom wajib diisi.', 'err'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { showMsg(msg, 'Format email tidak valid.', 'err'); return; }
+      if (p.length < 6) { showMsg(msg, 'Password minimal 6 karakter.', 'err'); return; }
+
+      var users = getUsers();
+      var dup = users.some(function (x) { return x.username === u || x.email === em; });
+      if (dup) { showMsg(msg, 'Username atau email sudah terdaftar.', 'err'); return; }
+
+      users.push({
+        id: users.length + 1,
+        username: u,
+        email: em,
+        pass: simpleHash(p),
+        time: new Date().toLocaleString('id-ID')
+      });
+      saveUsers(users);
+
+      showMsg(msg, 'Registrasi berhasil! Mengalihkan ke login...', 'ok');
+      regForm.reset();
+      setTimeout(function () {
+        switchPane('login');
+        showMsg(document.getElementById('loginMsg'), 'Registrasi berhasil! Silakan login.', 'ok');
+      }, 1000);
+    });
+  }
+
+  /* Login */
+  var loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var u = document.getElementById('loginUser').value.trim();
+      var p = document.getElementById('loginPass').value;
+      var msg = document.getElementById('loginMsg');
+
+      if (!u || !p) { showMsg(msg, 'Semua kolom wajib diisi.', 'err'); return; }
+
+      var users = getUsers();
+      var found = null;
+      for (var i = 0; i < users.length; i++) {
+        if (users[i].username === u || users[i].email === u) { found = users[i]; break; }
+      }
+      if (!found) { showMsg(msg, 'Username atau password salah.', 'err'); return; }
+      if (found.pass !== simpleHash(p)) { showMsg(msg, 'Username atau password salah.', 'err'); return; }
+
+      setSession({ id: found.id, username: found.username, time: new Date().toLocaleString('id-ID') });
+      showMsg(msg, 'Login berhasil! Mengalihkan...', 'ok');
+      setTimeout(function () { switchPane('dashboard'); }, 800);
+    });
+  }
+
+  /* Dashboard */
+  function refreshDash() {
+    var s = getSession();
+    var avatar = document.getElementById('dashAvatar');
+    var name = document.getElementById('dashName');
+    var sub = document.getElementById('dashSub');
+    var status = document.getElementById('dashStatus');
+    var idEl = document.getElementById('dashId');
+    var timeEl = document.getElementById('dashTime');
+
+    if (s) {
+      avatar.textContent = s.username.charAt(0).toUpperCase();
+      name.textContent = 'Halo, ' + s.username + '!';
+      sub.textContent = 'Kamu berhasil masuk. Ini halaman dashboard yang hanya bisa diakses oleh pengguna yang sudah login.';
+      status.textContent = 'Sudah login';
+      idEl.textContent = '#' + s.id;
+      timeEl.textContent = s.time;
+    } else {
+      avatar.textContent = '?';
+      name.textContent = 'Halo, Tamu!';
+      sub.textContent = 'Kamu belum login. Coba daftar atau masuk dulu lewat tab di atas.';
+      status.textContent = 'Belum login';
+      idEl.textContent = '—';
+      timeEl.textContent = '—';
+    }
+  }
+
+  var logoutBtn = document.getElementById('dashLogout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function () {
+      clearSession();
+      refreshDash();
+      switchPane('login');
+      showMsg(document.getElementById('loginMsg'), 'Kamu sudah logout.', 'info');
+    });
+  }
+
+  refreshDash();
+
+  /* ---------- 7. ANIMASI HERO (typing) ---------- */
+
+  (function () {
+    var el = document.getElementById('typing');
+    if (!el) return;
+    var text = 'zean_siregar';
+    var i = 0, dir = 1;
+    setInterval(function () {
+      i += dir;
+      if (i >= text.length) { i = text.length; dir = -1; }
+      if (i <= 0) { i = 0; dir = 1; }
+      el.textContent = text.slice(0, i);
+    }, 130);
+  })();
+
+})();
+</script>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-top">
+      <div>
+        <div class="foot-brand"><span class="brand-mark">&lt;/&gt;</span> Web Dinamis</div>
+        <p style="font-size:14px;max-width:320px;margin-top:12px;line-height:1.65">
+          Tutorial membuat website dinamis dengan PHP &amp; MySQL.
+          Dibuat biar kamu ngerti <i>kenapa</i>, bukan cuma nyalin kode.
+        </p>
+      </div>
+      <div class="foot-col">
+        <h5>Materi</h5>
+        <a href="#konsep">Konsep Web Dinamis</a>
+        <a href="#arsitektur">Arsitektur Aplikasi</a>
+        <a href="#langkah">9 Tahap Lengkap</a>
+        <a href="#demo">Demo Interaktif</a>
+      </div>
+      <div class="foot-col">
+        <h5>Bantuan</h5>
+        <a href="#faq">FAQ / Troubleshooting</a>
+        <a href="#langkah">Struktur Proyek</a>
+        <a href="#demo">Coba Demo</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>Website Dinamis — Tutorial PHP + MySQL</span>
+      <span>PHP 8 &middot; MySQL &middot; Session &middot; password_hash</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
