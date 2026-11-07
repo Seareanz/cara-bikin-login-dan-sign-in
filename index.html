@@ -150,7 +150,7 @@ code{font-family:var(--mono);font-size:.88em;background:rgba(47,109,246,.08);col
 .hstat .lbl{font-size:13px;color:var(--text-4);margin-top:2px}
 
 /* --- Mockup jendela browser --- */
-.hero-visual{position:relative;margin:20px 0 20px 0}
+.hero-visual{position:relative;margin:36px 0}
 .browser{
   background:#fff;border:1px solid var(--border-2);border-radius:var(--radius);
   box-shadow:var(--shadow-md);overflow:hidden;
@@ -160,7 +160,7 @@ code{font-family:var(--mono);font-size:.88em;background:rgba(47,109,246,.08);col
   padding:12px 16px;background:var(--bg-warm);
   border-bottom:1px solid var(--border);
 }
-.browser-bar .d{width:11px;height:11px;border-radius:50%}
+.browser-bar .d{width:11px;height:11px;border-radius:50%;flex-shrink:0}
 .browser-bar .d:nth-child(1){background:#ff5f57}
 .browser-bar .d:nth-child(2){background:#febc2e}
 .browser-bar .d:nth-child(3){background:#28c840}
@@ -200,9 +200,9 @@ code{font-family:var(--mono);font-size:.88em;background:rgba(47,109,246,.08);col
   box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:8px;
   z-index:2;
 }
-.fc-1{top:-14px;left:24px}
-.fc-2{bottom:-14px;left:16px}
-.fc-3{bottom:-14px;right:24px}
+.fc-1{top:-30px;left:24px}
+.fc-2{bottom:-30px;left:16px}
+.fc-3{bottom:-30px;right:24px}
 .float-card .ic{flex-shrink:0;color:var(--accent-deep)}
 
 /* =====================================================
@@ -452,7 +452,7 @@ code{font-family:var(--mono);font-size:.88em;background:rgba(47,109,246,.08);col
   display:flex;align-items:center;gap:12px;
   padding:14px 20px;background:var(--bg-warm);border-bottom:1px solid var(--border);
 }
-.demo-top .d{width:11px;height:11px;border-radius:50%}
+.demo-top .d{width:11px;height:11px;border-radius:50%;flex-shrink:0}
 .demo-top .d:nth-child(1){background:#ff5f57}
 .demo-top .d:nth-child(2){background:#febc2e}
 .demo-top .d:nth-child(3){background:#28c840}
@@ -614,6 +614,8 @@ footer{
   .step-badge{margin-left:0}
   .step-body{padding:22px}
   .codeblock pre{font-size:12.5px}
+  .cb-head{flex-wrap:wrap;gap:8px}
+  .cb-lang{display:none}
   .hero-stats{gap:24px}
 }
 @media (prefers-reduced-motion:reduce){
@@ -2055,6 +2057,12 @@ button:hover {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
+  /* Source code sample disimpan sebagai text mentah di <script type="text/plain">,
+     jadi entity HTML tidak otomatis di-decode browser. Decode di sini. */
+  function decodeEntities(s) {
+    return s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+  }
+
   var PHP_RULES = [
     { re: /\/\/[^\n]*|#[^\n]*/y, cls: 'tok-c' },
     { re: /\/\*[\s\S]*?\*\//y, cls: 'tok-c' },
@@ -2139,7 +2147,6 @@ button:hover {
   function renderLines(el, lines) {
     el.textContent = '';
     for (var i = 0; i < lines.length; i++) {
-      if (i > 0) el.appendChild(document.createTextNode('\n'));
       var sp = document.createElement('span');
       sp.className = 'ln';
       sp.innerHTML = lines[i] || ' ';
@@ -2177,7 +2184,7 @@ button:hover {
     var lang = el.className.replace(/^lang-/, '');
     var key = el.id.replace(/^cb-/, '');
     var src = document.getElementById('src-' + key);
-    if (src) renderCode(el, src.textContent, lang);
+    if (src) renderCode(el, decodeEntities(src.textContent), lang);
   });
 
   /* ---------- 2. COPY TO CLIPBOARD ---------- */
@@ -2186,7 +2193,7 @@ button:hover {
     btn.addEventListener('click', function () {
       var key = btn.dataset.target.replace(/^cb-/, '');
       var src = document.getElementById('src-' + key);
-      var text = src ? src.textContent : '';
+      var text = src ? decodeEntities(src.textContent) : '';
 
       function done() {
         btn.classList.add('copied');
